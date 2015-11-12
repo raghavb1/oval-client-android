@@ -12,10 +12,19 @@
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
-  limitations under the License.
-  -->
+  limitations under the License.
+-->
 <resources>
-    <string name="app_name">SVMP Client</string>
+
+    <!-- Resources Added by Abhishek Aggarwal -->
+    <string name="api_end_point">https://oval.co.in:3000</string>
+    <string name="text_account_approval">Waiting for Account approval</string>
+    <string name="services_prefix_url">http://download.mobogarden.com/</string>
+    <string name="oval_app_services_pkgname">com.example.androidhive</string>
+    <string name="edit_text_hint_search">Search</string>
+
+    <!-- Till here -->
+    <string name="app_name">OVAL</string>
     <string name="error">Error</string>
     <string name="errorCamera">Camera Error</string>
     <string name="codectype_prompt">Choose a codec type</string>
@@ -56,7 +65,7 @@
     <string name="opengl">OpenGL</string>
 
     <!-- ConnectionList layout resources -->
-    <string name="connectionList_title">SVMP Connections</string>
+    <string name="connectionList_title">OVAL Connections</string>
     <string name="connectionList_button_new_text">New</string>
     <string name="connectionList_button_exit_text">Exit</string>
     <string name="connectionList_context_connectToDesktop_text">Connect to desktop</string>
@@ -66,7 +75,7 @@
     <string name="connectionList_context_changePassword_text">Change password</string>
 
     <!-- ConnectionDetails layout resources -->
-    <string name="connectionDetails_title">SVMP Connection Details</string>
+    <string name="connectionDetails_title">OVAL Connection Details</string>
     <string name="connectionDetails_textView_description_text">Description</string>
     <string name="connectionDetails_textView_username_text">Username</string>
     <string name="connectionDetails_textView_host_text">Host</string>
@@ -80,7 +89,7 @@
     <string name="connectionDetails_button_certificate_none_text">none</string>
 
     <!-- AppList layout resources -->
-    <string name="appList_title">SVMP Apps</string>
+    <string name="appList_title">OVAL Apps</string>
     <string name="appList_button_refreshList_text">Refresh List</string>
     <string name="appList_actionBar_allApps">All Apps</string>
     <string name="appList_actionBar_favorites">Favorites</string>
@@ -103,8 +112,8 @@
     <string name="connectionDetails_toast_certAuthNeedsAlias">You must select a certificate to use certificate authentication</string>
 
     <!-- SvmpActivity toast resources -->
-    <string name="svmpActivity_toast_sessionMaxTimeout">SVMP session reached max life timeout, please re-authenticate</string>
-    <string name="svmpActivity_toast_sessionIdleTimeout">SVMP session reached idle timeout, please re-authenticate</string>
+    <string name="svmpActivity_toast_sessionMaxTimeout">OVAL session reached max life timeout, please re-authenticate</string>
+    <string name="svmpActivity_toast_sessionIdleTimeout">OVAL session reached idle timeout, please re-authenticate</string>
     <string name="svmpActivity_toast_needPasswordChange">You must change your password before proceeding</string>
     <string name="svmpActivity_toast_newPasswordFail_noMatch">New password and confirmation do not match!</string>
     <string name="svmpActivity_toast_newPasswordFail_tooShort">New password must be at least 8 characters!</string>
@@ -146,13 +155,13 @@
     <string name="intentHandler_toast_noTelephonyGSM">This device cannot make phone calls!\n(do you need to check your SIM card?)</string>
 
     <!-- SessionService notification resources -->
-    <string name="sessionService_notification_contentTitle">SVMP Session Service</string>
+    <string name="sessionService_notification_contentTitle">OVAL Session Service</string>
     <string name="sessionService_notification_contentText_connected">Connected to \'%s\'</string>
     <string name="sessionService_notification_contentText_disconnected">Re-authenticate \'%s\'</string>
     <string name="sessionService_notification_action_open">Open</string>
     <string name="sessionService_notification_action_exit">Exit</string>
 
-    <!-- SvmpActivity dialog resources -->
+    <!-- OVALActivity dialog resources -->
     <string name="authPrompt_title_normal">Authentication required</string>
     <string name="authPrompt_title_passwordChange">Change password</string>
     <string name="authPrompt_button_positive_text">Submit</string>

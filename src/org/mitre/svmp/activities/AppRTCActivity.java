@@ -50,10 +50,13 @@ import android.app.ProgressDialog;
 import android.content.*;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.*;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import org.json.JSONObject;
 import org.mitre.svmp.apprtc.*;
@@ -65,307 +68,335 @@ import org.mitre.svmp.protocol.SVMPProtocol.Response;
 import org.mitre.svmp.services.SessionService;
 import org.webrtc.*;
 import org.mitre.svmp.common.StateMachine.STATE;
+import com.citicrowd.oval.R;
 
 /**
- * @author Joe Portner
- * Base activity for establishing an AppRTC connection
+ * @author Joe Portner Base activity for establishing an AppRTC connection
  */
 public class AppRTCActivity extends Activity implements StateObserver, MessageHandler, Constants {
 
-    private static final String TAG = AppRTCActivity.class.getName();
+	private static final String TAG = AppRTCActivity.class.getName();
 
-    protected AppRTCClient appRtcClient;
-    protected PerformanceAdapter performanceAdapter;
-    private boolean bound = false;
+	protected AppRTCClient appRtcClient;
+	protected PerformanceAdapter performanceAdapter;
+	private boolean bound = false;
 
-    private Toast logToast;
+	private Toast logToast;
 
-    // Synchronize on quit[0] to avoid teardown-related crashes.
-    private final Boolean[] quit = new Boolean[]{false};
+	// Synchronize on quit[0] to avoid teardown-related crashes.
+	private final Boolean[] quit = new Boolean[] { false };
 
-    protected DatabaseHandler dbHandler;
-    protected ConnectionInfo connectionInfo;
+	protected DatabaseHandler dbHandler;
+	protected ConnectionInfo connectionInfo;
 
-    protected boolean proxying = false; // if this is true, we have finished the handshakes and the connection is running
-    private ProgressDialog pd;
+	protected boolean proxying = false; // if this is true, we have finished the
+										// handshakes and the connection is
+										// running
+	protected ProgressDialog pd;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // lock the application to the natural "up" orientation of the physical device
-        //noinspection MagicConstant
-        setRequestedOrientation(getDeviceDefaultOrientation());
+	protected ImageView appLoadingImgVw;
+	protected TextView preparingTextView;
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 
-        // connect to the database
-        dbHandler = new DatabaseHandler(this);
+		setContentView(R.layout.activity_apprtc);
+		getWindow().getDecorView().setBackgroundColor(Color.WHITE);
 
-        // adapter that helps record performance measurements
-        performanceAdapter = new PerformanceAdapter();
+		preparingTextView = (TextView) findViewById(R.id.preparingTextView);
+		appLoadingImgVw = (ImageView) findViewById(R.id.appLoadingImgVw);
 
-        // Since the error-handling of this demo consists of throwing
-        // RuntimeExceptions and we assume that'll terminate the app, we install
-        // this default handler so it's applied to background threads as well.
-        Thread.setDefaultUncaughtExceptionHandler(
-                new Thread.UncaughtExceptionHandler() {
-                    public void uncaughtException(Thread t, Throwable e) {
-                        e.printStackTrace();
-                        System.exit(-1);
-                    }
-                });
+		// lock the application to the natural "up" orientation of the physical
+		// device
+		// noinspection MagicConstant
+		setRequestedOrientation(getDeviceDefaultOrientation());
 
-        // Get info passed to Intent
-        final Intent intent = getIntent();
-        connectionInfo = dbHandler.getConnectionInfo(intent.getIntExtra("connectionID", 0));
+		// connect to the database
+		dbHandler = new DatabaseHandler(this);
 
-        if (connectionInfo != null)
-            connectToRoom();
-        else
-            logAndToast(R.string.appRTC_toast_connection_notFound);
-    }
+		// adapter that helps record performance measurements
+		performanceAdapter = new PerformanceAdapter();
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-    }
+		// Since the error-handling of this demo consists of throwing
+		// RuntimeExceptions and we assume that'll terminate the app, we install
+		// this default handler so it's applied to background threads as well.
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+			public void uncaughtException(Thread t, Throwable e) {
+				e.printStackTrace();
+				System.exit(-1);
+			}
+		});
 
-    // returns what value we should request for screen orientation, either portrait or landscape
-    private int getDeviceDefaultOrientation() {
-        WindowManager windowManager =  (WindowManager) getSystemService(WINDOW_SERVICE);
-        Configuration config = getResources().getConfiguration();
-        int rotation = windowManager.getDefaultDisplay().getRotation();
+		// Get info passed to Intent
+		final Intent intent = getIntent();
+		connectionInfo = dbHandler.getConnectionInfo(intent.getIntExtra("connectionID", 0));
 
-        int value = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-        if ( ((rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) &&
-                config.orientation == Configuration.ORIENTATION_LANDSCAPE)
-                || ((rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270) &&
-                config.orientation == Configuration.ORIENTATION_PORTRAIT))
-            value = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+		if (connectionInfo != null)
+			connectToRoom();
+		else
+			logAndToast(R.string.appRTC_toast_connection_notFound);
+	}
 
-        return value;
-    }
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+	}
 
-    // called from PCObserver
-    public MediaConstraints getPCConstraints() {
-        MediaConstraints value = null;
-        if (appRtcClient != null)
-            value = appRtcClient.getSignalingParams().pcConstraints;
-        return value;
-    }
+	// returns what value we should request for screen orientation, either
+	// portrait or landscape
+	private int getDeviceDefaultOrientation() {
+		WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+		Configuration config = getResources().getConfiguration();
+		int rotation = windowManager.getDefaultDisplay().getRotation();
 
-    public void changeToErrorState() {
-        if (appRtcClient != null)
-            appRtcClient.changeToErrorState();
-    }
+		int value = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+		if (((rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180)
+				&& config.orientation == Configuration.ORIENTATION_LANDSCAPE)
+				|| ((rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270)
+						&& config.orientation == Configuration.ORIENTATION_PORTRAIT))
+			value = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
 
-    protected void connectToRoom() {
-        logAndToast(R.string.appRTC_toast_connection_start);
-        startProgressDialog();
+		return value;
+	}
 
-        bindService(new Intent(this, SessionService.class), serviceConnection, 0);
-    }
+	// called from PCObserver
+	public MediaConstraints getPCConstraints() {
+		MediaConstraints value = null;
+		if (appRtcClient != null)
+			value = appRtcClient.getSignalingParams().pcConstraints;
+		return value;
+	}
 
-    /** Defines callbacks for service binding, passed to bindService() */
-    private ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder iBinder) {
-            // We've bound to SessionService, cast the IBinder and get SessionService instance
-            appRtcClient = (AppRTCClient) iBinder;
-            performanceAdapter.setPerformanceData(appRtcClient.getPerformance());
-            bound = true;
+	public void changeToErrorState() {
+		if (appRtcClient != null)
+			appRtcClient.changeToErrorState();
+	}
 
-            // after we have bound to the service, begin the connection
-            appRtcClient.connectToRoom(AppRTCActivity.this);
-        }
+	protected void connectToRoom() {
+		logAndToast(R.string.appRTC_toast_connection_start);
+		startProgressDialog();
 
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-        }
-    };
+		bindService(new Intent(this, SessionService.class), serviceConnection, 0);
+	}
 
-    protected void startProgressDialog() {
-        pd = new ProgressDialog(AppRTCActivity.this);
-        pd.setCanceledOnTouchOutside(false);
-        pd.setTitle(R.string.appRTC_progressDialog_title);
-        pd.setMessage(getResources().getText(R.string.appRTC_progressDialog_message));
-        pd.setIndeterminate(true);
-        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                disconnectAndExit();
-            }
-        });
-        pd.show();
-    }
+	/** Defines callbacks for service binding, passed to bindService() */
+	private ServiceConnection serviceConnection = new ServiceConnection() {
+		@Override
+		public void onServiceConnected(ComponentName className, IBinder iBinder) {
+			// We've bound to SessionService, cast the IBinder and get
+			// SessionService instance
+			appRtcClient = (AppRTCClient) iBinder;
+			performanceAdapter.setPerformanceData(appRtcClient.getPerformance());
+			bound = true;
 
-    public void stopProgressDialog() {
-        if (pd != null) {
-            pd.dismiss();
-            pd = null;
-        }
-    }
+			// after we have bound to the service, begin the connection
+			appRtcClient.connectToRoom(AppRTCActivity.this);
+		}
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (proxying)
-            disconnectAndExit();
-    }
+		@Override
+		public void onServiceDisconnected(ComponentName arg0) {
+		}
+	};
 
-    // Log |msg| and Toast about it.
-    public void logAndToast(final int resID) {
-        Log.d(TAG, getResources().getString(resID));
-        this.runOnUiThread(new Runnable() {
-            public void run() {
-                if (logToast != null) {
-                    logToast.cancel();
-                }
-                logToast = Toast.makeText(AppRTCActivity.this, resID, Toast.LENGTH_SHORT);
-                logToast.show();
-            }
-        });
-    }
+	protected void startProgressDialog() {
+		pd = new ProgressDialog(AppRTCActivity.this);
+		pd.setCanceledOnTouchOutside(false);
+		pd.setTitle(R.string.appRTC_progressDialog_title);
+		pd.setMessage(getResources().getText(R.string.appRTC_progressDialog_message));
+		pd.setIndeterminate(true);
+		pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				disconnectAndExit();
+			}
+		});
+		pd.show();
+	}
 
-    // called from PCObserver, SDPObserver, RotationHandler, and TouchHandler
-    public void sendMessage(Request msg) {
-        if (appRtcClient != null)
-            appRtcClient.sendMessage(msg);
-    }
+	public void stopProgressDialog() {
+		if (pd != null) {
+			pd.dismiss();
+			pd = null;
+		}
+	}
 
-    // MessageHandler interface method
-    // Called when the client connection is established
-    public void onOpen() {
-        proxying = true;
-        logAndToast(R.string.appRTC_toast_clientHandler_start);
-    }
+	@Override
+	public void onPause() {
+		super.onPause();
+		if (proxying)
+			disconnectAndExit();
+	}
 
-    // MessageHandler interface method
-    // Called when a message is sent from the server, and the SessionService doesn't consume it
-    public boolean onMessage(Response data) {
-        switch (data.getType()) {
-            case AUTH:
-                if (data.hasAuthResponse()) {
-                    switch (data.getAuthResponse().getType()) {
-                        case SESSION_MAX_TIMEOUT:
-                            needAuth(R.string.svmpActivity_toast_sessionMaxTimeout, false);
-                            break;
-                    }
-                }
-                break;
-            default:
-                Log.e(TAG, "Unexpected protocol message of type " + data.getType().name());
-        }
-        return true;
-    }
+	// Log |msg| and Toast about it.
+	public void logAndToast(final int resID) {
+		Log.d(TAG, getResources().getString(resID));
+		this.runOnUiThread(new Runnable() {
+			public void run() {
+				if (logToast != null) {
+					logToast.cancel();
+				}
+				logToast = Toast.makeText(AppRTCActivity.this, resID, Toast.LENGTH_SHORT);
+				// logToast.show();
+			}
+		});
+	}
 
-    // when authentication fails, or a session maxTimeout or idleTimeout message is received, stop the
-    // AppRTCActivity, close the connection, and cause the ConnectionList activity to reconnect to this
-    // connectionID
-    public void needAuth(int messageResID, boolean passwordChange) {
-        // clear timed out session information from memory
-        dbHandler.clearSessionInfo(connectionInfo);
-        // send a result message to the calling activity so it will show the authentication dialog again
-        Intent intent = new Intent();
-        intent.putExtra("connectionID", connectionInfo.getConnectionID());
-        if (messageResID > 0)
-            logAndToast(messageResID);
-        setResult(passwordChange ? SvmpActivity.RESULT_NEEDPASSWORDCHANGE : SvmpActivity.RESULT_NEEDAUTH, intent);
+	// called from PCObserver, SDPObserver, RotationHandler, and TouchHandler
+	public void sendMessage(Request msg) {
+		if (appRtcClient != null)
+			appRtcClient.sendMessage(msg);
+	}
 
-        disconnectAndExit();
-    }
+	// MessageHandler interface method
+	// Called when the client connection is established
+	public void onOpen() {
+		proxying = true;
+		logAndToast(R.string.appRTC_toast_clientHandler_start);
+	}
 
-    // Disconnect from remote resources, dispose of local resources, and exit.
-    protected void disconnectAndExit() {
-        proxying = false;
-        synchronized (quit[0]) {
-            if (quit[0]) {
-                return;
-            }
-            quit[0] = true;
+	// MessageHandler interface method
+	// Called when a message is sent from the server, and the SessionService
+	// doesn't consume it
+	public boolean onMessage(Response data) {
+		switch (data.getType()) {
+		case AUTH:
+			if (data.hasAuthResponse()) {
+				switch (data.getAuthResponse().getType()) {
+				case SESSION_MAX_TIMEOUT:
+					needAuth(R.string.svmpActivity_toast_sessionMaxTimeout, false);
+					break;
+				}
+			}
+			break;
+		default:
+			Log.e(TAG, "Unexpected protocol message of type " + data.getType().name());
+		}
+		return true;
+	}
 
-            // allow child classes to clean up their components
-            onDisconnectAndExit();
+	// when authentication fails, or a session maxTimeout or idleTimeout message
+	// is received, stop the
+	// AppRTCActivity, close the connection, and cause the ConnectionList
+	// activity to reconnect to this
+	// connectionID
+	public void needAuth(int messageResID, boolean passwordChange) {
+		// clear timed out session information from memory
+		dbHandler.clearSessionInfo(connectionInfo);
+		// send a result message to the calling activity so it will show the
+		// authentication dialog again
+		Intent intent = new Intent();
+		intent.putExtra("connectionID", connectionInfo.getConnectionID());
+		if (messageResID > 0)
+			logAndToast(messageResID);
+		setResult(passwordChange ? SvmpActivity.RESULT_NEEDPASSWORDCHANGE : SvmpActivity.RESULT_NEEDAUTH, intent);
 
-            // Unbind from the service
-            if (bound) {
-                if (SessionService.getState() == STATE.RUNNING) {
-                    JSONObject json = new JSONObject();
-                    AppRTCHelper.jsonPut(json, "type", "bye");
-                    try {
-                        appRtcClient.sendMessage(AppRTCHelper.makeWebRTCRequest(json));
-                    } catch (Exception e) {
-                        // don't care
-                    }
-                }
-                unbindService(serviceConnection);
-                bound = false;
-                appRtcClient.disconnectFromRoom();
-                appRtcClient = null;
-                performanceAdapter.clearPerformanceData();
-            }
+		disconnectAndExit();
+	}
 
-            stopProgressDialog(); // prevent resource leak if we disconnect while the progress dialog is still up
+	// Disconnect from remote resources, dispose of local resources, and exit.
+	protected void disconnectAndExit() {
+		proxying = false;
+		synchronized (quit[0]) {
+			if (quit[0]) {
+				return;
+			}
+			quit[0] = true;
 
-            // if the useBackground preference is unchecked, stop the session service before finishing
-            boolean useBackground = Utility.getPrefBool(this, R.string.preferenceKey_connection_useBackground, R.string.preferenceValue_connection_useBackground);
-            if (!useBackground)
-                stopService(new Intent(this, SessionService.class));
+			// allow child classes to clean up their components
+			onDisconnectAndExit();
 
-            if (!isFinishing())
-                finish();
-        }
-    }
+			// Unbind from the service
+			if (bound) {
+				if (SessionService.getState() == STATE.RUNNING) {
+					JSONObject json = new JSONObject();
+					AppRTCHelper.jsonPut(json, "type", "bye");
+					try {
+						appRtcClient.sendMessage(AppRTCHelper.makeWebRTCRequest(json));
+					} catch (Exception e) {
+						// don't care
+					}
+				}
+				unbindService(serviceConnection);
+				bound = false;
+				appRtcClient.disconnectFromRoom();
+				appRtcClient = null;
+				performanceAdapter.clearPerformanceData();
+			}
 
-    // override in child classes
-    protected void onDisconnectAndExit() {
-    }
+			stopProgressDialog(); // prevent resource leak if we disconnect
+									// while the progress dialog is still up
 
-    public boolean isConnected() {
-        return proxying;
-    }
+			// if the useBackground preference is unchecked, stop the session
+			// service before finishing
+			boolean useBackground = Utility.getPrefBool(this, R.string.preferenceKey_connection_useBackground,
+					R.string.preferenceValue_connection_useBackground);
+			if (!useBackground)
+				stopService(new Intent(this, SessionService.class));
 
-    public void onStateChange(STATE oldState, STATE newState, int resID) {
-        boolean exit = false;
+			if (!isFinishing())
+				finish();
+		}
+	}
 
-        switch(newState) {
-            case CONNECTED:
-                break;
-            case AUTH:
-                break;
-            case RUNNING:
-                break;
-            case ERROR:
-                // we are in an error state, check the previous state and act appropriately
-                switch(oldState) {
-                    case STARTED: // failed to authenticate and transition to AUTH
-                    case CONNECTED: // failed to receive ready message and transition to RUNNING (can fail auth to proxy)
-                        if (resID == R.string.appRTC_toast_svmpAuthenticator_fail) {
-                            // our authentication was rejected, exit and bring up the auth prompt when the connection list resumes
-                            needAuth(resID, false);
-                        } else if (resID == R.string.svmpActivity_toast_needPasswordChange
-                                || resID == R.string.appRTC_toast_svmpAuthenticator_passwordChangeFail) {
-                            needAuth(resID, true);
-                        }
-                        // otherwise, we had an SSL error, display the failure message and return to the connection list
-                        break;
-                    case AUTH: // failed to connect the WebSocket and transition to CONNECTED
-                        // the socket connection failed, display the failure message and return to the connection list
-                        break;
-                    case RUNNING: // failed after already running
-                        break;
-                }
+	// override in child classes
+	protected void onDisconnectAndExit() {
+	}
 
-                exit = true;
-                break;
-            default:
-                break;
-        }
+	public boolean isConnected() {
+		return proxying;
+	}
 
-        // if the state change included a message, log it and display a toast popup message
-        if (resID > 0 && !quit[0])
-            logAndToast(resID);
+	public void onStateChange(STATE oldState, STATE newState, int resID) {
+		boolean exit = false;
 
-        if (exit)
-            // finish this activity and return to the connection list
-            disconnectAndExit();
-    }
+		switch (newState) {
+		case CONNECTED:
+			break;
+		case AUTH:
+			break;
+		case RUNNING:
+			break;
+		case ERROR:
+			// we are in an error state, check the previous state and act
+			// appropriately
+			switch (oldState) {
+			case STARTED: // failed to authenticate and transition to AUTH
+			case CONNECTED: // failed to receive ready message and transition to
+							// RUNNING (can fail auth to proxy)
+				if (resID == R.string.appRTC_toast_svmpAuthenticator_fail) {
+					// our authentication was rejected, exit and bring up the
+					// auth prompt when the connection list resumes
+					needAuth(resID, false);
+				} else if (resID == R.string.svmpActivity_toast_needPasswordChange
+						|| resID == R.string.appRTC_toast_svmpAuthenticator_passwordChangeFail) {
+					needAuth(resID, true);
+				}
+				// otherwise, we had an SSL error, display the failure message
+				// and return to the connection list
+				break;
+			case AUTH: // failed to connect the WebSocket and transition to
+						// CONNECTED
+				// the socket connection failed, display the failure message and
+				// return to the connection list
+				break;
+			case RUNNING: // failed after already running
+				break;
+			}
+
+			exit = true;
+			break;
+		default:
+			break;
+		}
+
+		// if the state change included a message, log it and display a toast
+		// popup message
+		if (resID > 0 && !quit[0])
+			logAndToast(resID);
+
+		if (exit)
+			// finish this activity and return to the connection list
+			disconnectAndExit();
+	}
 }

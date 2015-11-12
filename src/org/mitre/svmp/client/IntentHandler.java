@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
+import com.citicrowd.oval.R;
 import org.mitre.svmp.protocol.SVMPProtocol;
 
 /**

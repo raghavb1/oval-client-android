@@ -74,7 +74,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             {"LastDisconnected", "INTEGER DEFAULT 0"}, // UNUSED/OBSOLETE
             {"SessionHost", "TEXT DEFAULT ''"},
             {"SessionPort", "TEXT DEFAULT ''"},
-            {"SessionWebrtc", "TEXT DEFAULT ''"}
+            {"SessionWebrtc", "TEXT DEFAULT ''"},
+            {"Status", "INTEGER DEFAULT 0"}
         }, {
             {"StartDate", "INTEGER", "PRIMARY KEY"},
             {"ConnectionID", "INTEGER"}, // foreign key
@@ -354,7 +355,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 getDb(),
                 new String[]{"ConnectionID", "Description", "Username", "Host", "Port", "EncryptionType",
                         "AuthType", "CertificateAlias",
-                        "COUNT(PackageName)"}, // columns (null == "*")
+                        "COUNT(PackageName)","Status"}, // columns (null == "*")
                 selection, // selection ('where' clause)
                 selectionArgs, // selection args
                 "ConnectionID", // group by
@@ -557,9 +558,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             int authType = cursor.getInt(6);
             String certificateAlias = cursor.getString(7);
             int appCount = cursor.getInt(8);
+            int status= cursor.getInt(9);
 
             return new ConnectionInfo(connectionID, description, username, host, port, encryptionType,
-                    authType, certificateAlias, appCount);
+                    authType, certificateAlias, appCount, status);
         } catch( Exception e ) {
             e.printStackTrace();
             return null;
@@ -809,6 +811,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             contentValues.put("Domain", "");
             contentValues.put("AuthType", connectionInfo.getAuthType());
             contentValues.put("CertificateAlias", connectionInfo.getCertificateAlias());
+            contentValues.put("Status", connectionInfo.getStatus());
         }
 
         return contentValues;

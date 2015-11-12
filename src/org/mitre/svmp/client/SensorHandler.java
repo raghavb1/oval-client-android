@@ -34,6 +34,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
+import com.citicrowd.oval.R;
 import org.mitre.svmp.services.SessionService;
 
 public class SensorHandler implements SensorEventListener, Constants {

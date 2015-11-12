@@ -52,6 +52,9 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
+import android.widget.ImageView;
+import android.widget.TextView;
+
 import org.appspot.apprtc.VideoStreamsView;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -59,246 +62,294 @@ import org.mitre.svmp.apprtc.*;
 import org.mitre.svmp.client.*;
 import org.mitre.svmp.protocol.SVMPProtocol;
 import org.mitre.svmp.protocol.SVMPProtocol.AppsRequest;
+import org.mitre.svmp.protocol.SVMPProtocol.IntentAction;
 import org.mitre.svmp.protocol.SVMPProtocol.Request;
 import org.mitre.svmp.protocol.SVMPProtocol.Response;
 import org.webrtc.*;
-
+import com.citicrowd.oval.R;
 import java.util.TimeZone;
 
 /**
- * @author Joe Portner
- * General purpose activity to display a video feed and allow the user to interact with a remote VM
+ * @author Joe Portner General purpose activity to display a video feed and
+ *         allow the user to interact with a remote VM
  */
 public class AppRTCVideoActivity extends AppRTCActivity {
-    private static final String TAG = AppRTCVideoActivity.class.getName();
+	private static final String TAG = AppRTCVideoActivity.class.getName();
 
-    private MediaConstraints sdpMediaConstraints;
-    private SDPObserver sdpObserver;
-    private VideoStreamsView vsv;
-    private PCObserver pcObserver;
-    private TouchHandler touchHandler;
-    private RotationHandler rotationHandler;
-    private String pkgName; // what app we want to launch when we finish connecting
-    private KeyHandler keyHandler;
-    private ConfigHandler configHandler;
+	private MediaConstraints sdpMediaConstraints;
+	private SDPObserver sdpObserver;
+	private VideoStreamsView vsv;
+	private PCObserver pcObserver;
+	private TouchHandler touchHandler;
+	private RotationHandler rotationHandler;
+	private String pkgName; // what app we want to launch when we finish
+							// connecting
+	private KeyHandler keyHandler;
+	private ConfigHandler configHandler;
+	private String apkPath;
+	
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        // Get info passed to Intent
-        final Intent intent = getIntent();
-        pkgName = intent.getStringExtra("pkgName");
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		
+		// Get info passed to Intent
+		final Intent intent = getIntent();
+		pkgName = intent.getStringExtra("pkgName");
+		apkPath = intent.getStringExtra("apkPath");
 
-        super.onCreate(savedInstanceState);
-    }
+	
+		
 
-    @Override
-    protected void connectToRoom() {
-        // Uncomment to get ALL WebRTC tracing and SENSITIVE libjingle logging.
-//        Logging.enableTracing(
-//            "/sdcard/trace.txt",
-//            EnumSet.of(Logging.TraceLevel.TRACE_ALL),
-//            Logging.Severity.LS_SENSITIVE);
+		super.onCreate(savedInstanceState);
+		preparingTextView.setText("Preparing your App");
+	      
+	}
+	
+	  @Override
+	    protected void startProgressDialog() {
+	    	// not needed
+	    }
+	    @Override
+	    public void stopProgressDialog() {
+	    	// TODO Auto-generated method stub
+	//not needed
+	    }
 
-        Point displaySize = new Point();
-        getWindowManager().getDefaultDisplay().getSize(displaySize);
-        vsv = new VideoStreamsView(this, displaySize, performanceAdapter);
-        vsv.setBackgroundColor(Color.DKGRAY); // start this VideoStreamsView with a color of dark gray
-        setContentView(vsv);
+	@Override
+	protected void connectToRoom() {
+		// Uncomment to get ALL WebRTC tracing and SENSITIVE libjingle logging.
+		// Logging.enableTracing(
+		// "/sdcard/trace.txt",
+		// EnumSet.of(Logging.TraceLevel.TRACE_ALL),
+		// Logging.Severity.LS_SENSITIVE);
 
-        touchHandler = new TouchHandler(this, displaySize, performanceAdapter);
-        rotationHandler = new RotationHandler(this);
-        keyHandler = new KeyHandler(this);
-        configHandler = new ConfigHandler(this);
+		Point displaySize = new Point();
+		getWindowManager().getDefaultDisplay().getSize(displaySize);
+		vsv = new VideoStreamsView(this, displaySize, performanceAdapter);
+		vsv.setBackgroundColor(Color.DKGRAY); // start this VideoStreamsView
+												// with a color of dark gray
+		setContentView(vsv);
 
-        AppRTCHelper.abortUnless(PeerConnectionFactory.initializeAndroidGlobals(this),
-                "Failed to initializeAndroidGlobals");
+		touchHandler = new TouchHandler(this, displaySize, performanceAdapter);
+		rotationHandler = new RotationHandler(this);
+		keyHandler = new KeyHandler(this);
+		configHandler = new ConfigHandler(this);
 
-        //Create observers.
-        sdpObserver = new SDPObserver(this);
-        pcObserver = new PCObserver(this);
+		AppRTCHelper.abortUnless(PeerConnectionFactory.initializeAndroidGlobals(this),
+				"Failed to initializeAndroidGlobals");
 
-        sdpMediaConstraints = new MediaConstraints();
-        sdpMediaConstraints.mandatory.add(new MediaConstraints.KeyValuePair(
-                "OfferToReceiveAudio", "true"));
-        sdpMediaConstraints.mandatory.add(new MediaConstraints.KeyValuePair(
-                "OfferToReceiveVideo", "true"));
+		// Create observers.
+		sdpObserver = new SDPObserver(this);
+		pcObserver = new PCObserver(this);
 
-        super.connectToRoom();
-    }
+		sdpMediaConstraints = new MediaConstraints();
+		sdpMediaConstraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"));
+		sdpMediaConstraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"));
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
+		super.connectToRoom();
+	}
 
-        // send the updated configuration to the VM (i.e. whether or not a hardware keyboard is plugged in)
-        configHandler.handleConfiguration(newConfig);
-    }
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
 
-    public VideoStreamsView getVSV() {
-        return vsv;
-    }
+		// send the updated configuration to the VM (i.e. whether or not a
+		// hardware keyboard is plugged in)
+		configHandler.handleConfiguration(newConfig);
+	}
 
-    public PCObserver getPCObserver() {
-        return pcObserver;
-    }
+	public VideoStreamsView getVSV() {
+		return vsv;
+	}
 
-/*
-    public MediaConstraints getSdpMediaConstraints() {
-        return sdpMediaConstraints;
-    }
+	public PCObserver getPCObserver() {
+		return pcObserver;
+	}
 
-    public boolean isInitiator() {
-        return appRtcClient.isInitiator();
-    }
-*/
+	/*
+	 * public MediaConstraints getSdpMediaConstraints() { return
+	 * sdpMediaConstraints; }
+	 * 
+	 * public boolean isInitiator() { return appRtcClient.isInitiator(); }
+	 */
 
-    // called from PCObserver
-    public MediaConstraints getPCConstraints() {
-        MediaConstraints value = null;
-        if (appRtcClient != null)
-            value = appRtcClient.getSignalingParams().pcConstraints;
-        return value;
-    }
+	// called from PCObserver
+	public MediaConstraints getPCConstraints() {
+		MediaConstraints value = null;
+		if (appRtcClient != null)
+			value = appRtcClient.getSignalingParams().pcConstraints;
+		return value;
+	}
 
-    @Override
-    protected void startProgressDialog() {
-        vsv.setBackgroundColor(Color.DKGRAY); // if it isn't already set, make the background color dark gray
-        super.startProgressDialog();
-    }
+	/*@Override
+	protected void startProgressDialog() {
+		vsv.setBackgroundColor(Color.DKGRAY); // if it isn't already set, make
+												// the background color dark
+												// gray
+		super.startProgressDialog();
+	}*/
 
-    @Override
-    public void onPause() {
-        vsv.onPause();
-        super.onPause();
-    }
+	@Override
+	public void onPause() {
+		vsv.onPause();
+		super.onPause();
+	}
 
-    @Override
-    public void onResume() {
-        vsv.onResume();
-        super.onResume();
-    }
+	@Override
+	public void onResume() {
+		vsv.onResume();
+		super.onResume();
+	}
 
-    // MessageHandler interface method
-    // Called when the client connection is established
-    @Override
-    public void onOpen() {
-        super.onOpen();
+	// MessageHandler interface method
+	// Called when the client connection is established
+	@Override
+	public void onOpen() {
+		super.onOpen();
 
-        // set up ICE servers
-        pcObserver.onIceServers(appRtcClient.getSignalingParams().iceServers);
+		// set up ICE servers
+		pcObserver.onIceServers(appRtcClient.getSignalingParams().iceServers);
 
-        // send timezone information
-        Request.Builder request = Request.newBuilder();
-        request.setType(Request.RequestType.TIMEZONE);
-        request.setTimezoneId(TimeZone.getDefault().getID());
-        sendMessage(request.build());
+		// send timezone information
+		Request.Builder request = Request.newBuilder();
+		request.setType(Request.RequestType.TIMEZONE);
+		request.setTimezoneId(TimeZone.getDefault().getID());
+		sendMessage(request.build());
 
-        touchHandler.sendScreenInfoMessage();
-        rotationHandler.initRotationUpdates();
+		touchHandler.sendScreenInfoMessage();
+		rotationHandler.initRotationUpdates();
 
-        // send the initial configuration to the VM
-        Configuration config = getResources().getConfiguration();
-        configHandler.handleConfiguration(config);
+		// send the initial configuration to the VM
+		Configuration config = getResources().getConfiguration();
+		configHandler.handleConfiguration(config);
 
-        // tell the VM what app we want to start
-        sendAppsMessage();
+		// tell the VM what app we want to start
+		if (apkPath != null) {
+			sendAppsMessageToOvalAppSrvc();
+		}
+		// sendAppsMessageToOvalAppSrvc();
+		else {
+			sendAppsMessage();
+		}
 
-        PeerConnection pc = pcObserver.getPC();
-        if (pc != null)
-            pc.createOffer(sdpObserver, sdpMediaConstraints);
-    }
+		PeerConnection pc = pcObserver.getPC();
+		if (pc != null)
+			pc.createOffer(sdpObserver, sdpMediaConstraints);
+	}
 
-    // sends "APPS" request to VM; if pkgName is not null, start that app, otherwise go to the Launcher
-    private void sendAppsMessage() {
-        AppsRequest.Builder aBuilder = AppsRequest.newBuilder();
-        aBuilder.setType(AppsRequest.AppsRequestType.LAUNCH);
-        // if we've been given a package name, start that app
-        if (pkgName != null)
-            aBuilder.setPkgName(pkgName);
-        Request.Builder rBuilder = Request.newBuilder();
-        rBuilder.setType(Request.RequestType.APPS);
-        rBuilder.setApps(aBuilder);
-        sendMessage(rBuilder.build());
-    }
+	// sends "APPS" request to VM; if pkgName is not null, start that app,
+	// otherwise go to the Launcher
+	private void sendAppsMessage() {
 
-    // MessageHandler interface method
-    // Called when a message is sent from the server, and the SessionService doesn't consume it
-    public boolean onMessage(Response data) {
-        switch (data.getType()) {
-            case APPS:
-                if (data.hasApps() && data.getApps().getType() == SVMPProtocol.AppsResponse.AppsResponseType.EXIT) {
-                    // we have exited a remote app; exit back to our parent activity and act accordingly
-                    disconnectAndExit();
-                }
-                break;
-            case SCREENINFO:
-                handleScreenInfo(data);
-                break;
-            case WEBRTC:
-                try {
-                    JSONObject json = new JSONObject(data.getWebrtcMsg().getJson());
-                    Log.d(TAG, "Received WebRTC message from peer:\n" + json.toString(4));
-                    String type;
-                    // peerconnection_client doesn't put a "type" on candidates
-                    try {
-                        type = (String) json.get("type");
-                    } catch (JSONException e) {
-                        json.put("type", "candidate");
-                        type = (String) json.get("type");
-                    }
+		AppsRequest.Builder aBuilder = AppsRequest.newBuilder();
 
-                    //Check out the type of WebRTC message.
-                    if (type.equals("candidate")) {
-                        IceCandidate candidate = new IceCandidate(
-                                (String) json.get("id"),
-                                json.getInt("label"),
-                                (String) json.get("candidate"));
-                        getPCObserver().addIceCandidate(candidate);
-                    } else if (type.equals("answer") || type.equals("offer")) {
-                        SessionDescription sdp = new SessionDescription(
-                                SessionDescription.Type.fromCanonicalForm(type),
-                                AppRTCHelper.preferISAC((String) json.get("sdp")));
-                        getPCObserver().getPC().setRemoteDescription(sdpObserver, sdp);
-                    } else if (type.equals("bye")) {
-                        logAndToast(R.string.appRTC_toast_clientHandler_finish);
-                        disconnectAndExit();
-                    } else {
-                        throw new RuntimeException("Unexpected message: " + data);
-                    }
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-                break;
-            default:
-                // any messages we don't understand, pass to our parent for processing
-                super.onMessage(data);
-        }
-        return true;
-    }
+		aBuilder.setType(AppsRequest.AppsRequestType.LAUNCH);
+		// if we've been given a package name, start that app
+		if (pkgName != null)
+			aBuilder.setPkgName(pkgName);
+		Request.Builder rBuilder = Request.newBuilder();
 
-    @Override
-    protected void onDisconnectAndExit() {
-        if (rotationHandler != null)
-            rotationHandler.cleanupRotationUpdates();
-        if (pcObserver != null)
-            pcObserver.quit();
-    }
+		rBuilder.setType(Request.RequestType.APPS);
 
-    /////////////////////////////////////////////////////////////////////
-    // Bridge input callbacks to the Touch Input Handler
-    /////////////////////////////////////////////////////////////////////
-    private void handleScreenInfo(Response msg) {
-        touchHandler.handleScreenInfoResponse(msg);
-    }
+		rBuilder.setApps(aBuilder);
+		sendMessage(rBuilder.build());
+	}
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return touchHandler.onTouchEvent(event);
-    }
+	private void sendAppsMessageToOvalAppSrvc() {
+		AppsRequest.Builder aBuilder = AppsRequest.newBuilder();
 
-    // intercept KeyEvent before it is dispatched to the window
-    @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        return keyHandler.tryConsume(event) || super.dispatchKeyEvent(event);
-    }
+		aBuilder.setType(AppsRequest.AppsRequestType.LAUNCH);
+		// if we've been given a package name, start that app
+		if (pkgName != null)
+			aBuilder.setPkgName(pkgName);
+		Request.Builder rBuilder = Request.newBuilder();
+		rBuilder.setType(Request.RequestType.APPS);
+		rBuilder.setApps(aBuilder);
+		SVMPProtocol.Intent.Builder intent = SVMPProtocol.Intent.newBuilder();
+		intent.setAction(IntentAction.ACTION_VIEW);
+		intent.setData(apkPath);
+		rBuilder.setIntent(intent);
+		sendMessage(rBuilder.build());
+	}
+
+	// MessageHandler interface method
+	// Called when a message is sent from the server, and the SessionService
+	// doesn't consume it
+	public boolean onMessage(Response data) {
+		switch (data.getType()) {
+		case APPS:
+			if (data.hasApps() && data.getApps().getType() == SVMPProtocol.AppsResponse.AppsResponseType.EXIT) {
+				// we have exited a remote app; exit back to our parent activity
+				// and act accordingly
+				disconnectAndExit();
+			}
+			break;
+		case SCREENINFO:
+			handleScreenInfo(data);
+			break;
+		case WEBRTC:
+			try {
+				JSONObject json = new JSONObject(data.getWebrtcMsg().getJson());
+				Log.d(TAG, "Received WebRTC message from peer:\n" + json.toString(4));
+				String type;
+				// peerconnection_client doesn't put a "type" on candidates
+				try {
+					type = (String) json.get("type");
+				} catch (JSONException e) {
+					json.put("type", "candidate");
+					type = (String) json.get("type");
+				}
+
+				// Check out the type of WebRTC message.
+				if (type.equals("candidate")) {
+					IceCandidate candidate = new IceCandidate((String) json.get("id"), json.getInt("label"),
+							(String) json.get("candidate"));
+					getPCObserver().addIceCandidate(candidate);
+				} else if (type.equals("answer") || type.equals("offer")) {
+					SessionDescription sdp = new SessionDescription(SessionDescription.Type.fromCanonicalForm(type),
+							AppRTCHelper.preferISAC((String) json.get("sdp")));
+					getPCObserver().getPC().setRemoteDescription(sdpObserver, sdp);
+				} else if (type.equals("bye")) {
+					logAndToast(R.string.appRTC_toast_clientHandler_finish);
+					disconnectAndExit();
+				} else {
+					throw new RuntimeException("Unexpected message: " + data);
+				}
+			} catch (JSONException e) {
+				throw new RuntimeException(e);
+			}
+			break;
+		default:
+			// any messages we don't understand, pass to our parent for
+			// processing
+			super.onMessage(data);
+		}
+		return true;
+	}
+
+	@Override
+	protected void onDisconnectAndExit() {
+		if (rotationHandler != null)
+			rotationHandler.cleanupRotationUpdates();
+		if (pcObserver != null)
+			pcObserver.quit();
+	}
+
+	/////////////////////////////////////////////////////////////////////
+	// Bridge input callbacks to the Touch Input Handler
+	/////////////////////////////////////////////////////////////////////
+	private void handleScreenInfo(Response msg) {
+		touchHandler.handleScreenInfoResponse(msg);
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		return touchHandler.onTouchEvent(event);
+	}
+
+	// intercept KeyEvent before it is dispatched to the window
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		return keyHandler.tryConsume(event) || super.dispatchKeyEvent(event);
+	}
 }

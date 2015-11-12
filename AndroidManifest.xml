@@ -1,20 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="org.mitre.svmp.client"
-          android:versionCode="11"
-          android:versionName="2.0.0">
+    package="com.citicrowd.oval"
+    android:versionCode="11"
+    android:versionName="2.0.0" >
 
-    <uses-sdk android:minSdkVersion="13" android:targetSdkVersion="19"/>
+    <uses-sdk
+        android:minSdkVersion="13"
+        android:targetSdkVersion="19" />
+
+    <!-- Permissions Added by Abhishek Aggarwal -->
+
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+
+    <!-- Ends -->
 
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <!-- used for performance measurements -->
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <!-- used by AppList to create and remove shortcuts -->
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
@@ -24,65 +33,111 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <!-- used to allow an outside source to cause a ConnectionList to refresh its layout -->
-    <permission android:name="org.mitre.svmp.PERMISSION_REFRESH"
-                android:protectionLevel="signature" />
+    <permission
+        android:name="org.mitre.svmp.PERMISSION_REFRESH"
+        android:protectionLevel="signature" />
+
     <uses-permission android:name="org.mitre.svmp.PERMISSION_REFRESH" />
 
-    <application android:label="@string/app_name"
-                 android:icon="@drawable/svmp_app_icon"
-                 android:allowBackup="false">
+    <application
+        android:allowBackup="false"
+        android:icon="@drawable/svmp_app_icon"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Holo.Light" >
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
 
         <!-- Allows for intercepting URL intents. -->
-        <activity android:name=".SendNetIntent"
-                  android:label="@string/app_name"
-                  android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-                  android:screenOrientation="portrait">
+        <activity
+            android:name="org.mitre.svmp.client.SendNetIntent"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:host="*" android:scheme="http"/>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="*"
+                    android:scheme="http" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="org.mitre.svmp.activities.ConnectionDetails"
+            android:label="@string/connectionDetails_title"
+            android:windowSoftInputMode="adjustResize" />
 
-        <activity android:name="org.mitre.svmp.activities.ConnectionDetails"
-                android:label="@string/connectionDetails_title"
-                android:windowSoftInputMode="adjustResize"/>
+        <!-- Acitivites created by Abhishek Aggarwal -->
+        <activity
+            android:name="com.oval.app.activities.OvalLoginActivity"
+            android:label="@string/app_name" >
 
-        <activity android:name="org.mitre.svmp.activities.ConnectionList"
-                  android:label="@string/app_name">
             <!-- actual title is set programmatically for compatibility with shortcuts -->
+            <!--
+            <intent-filter android:label="@string/app_name" >
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            -->
+        </activity>
+        <activity android:name="com.oval.app.activities.OvalAccountApprovalActivity" >
+        </activity>
+        <activity android:name="com.oval.app.activities.OvalSearchActivity" >
+        </activity>
+        <activity android:name="com.oval.app.activities.OvalSplashActivity" >
+            
+             <intent-filter android:label="@string/app_name" >
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="org.mitre.svmp.activities.ConnectionList"
+            android:label="@string/app_name" >
+
+            <!-- actual title is set programmatically for compatibility with shortcuts -->
+            <!--
             <intent-filter android:label="@string/app_name">
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
+            </intent-filter>
+            -->
         </activity>
-
-        <activity android:name="org.mitre.svmp.activities.SvmpPreferences"
-                android:label="@string/preferenceScreen_title"/>
-
-        <activity android:name="org.mitre.svmp.activities.AppRTCVideoActivity"
-                  android:label="@string/app_name"
-                  android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
-                  android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"/>
-        <activity android:name="org.mitre.svmp.activities.AppRTCRefreshAppsActivity"
-                  android:label="@string/app_name"
-                  android:configChanges="orientation|screenSize"
-                  android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"/>
-        <activity android:name="org.mitre.svmp.activities.AppRTCChangePasswordActivity"
-                  android:label="@string/app_name"
-                  android:configChanges="orientation|screenSize"
-                  android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"/>
+        <activity
+            android:name="org.mitre.svmp.activities.SvmpPreferences"
+            android:label="@string/preferenceScreen_title" />
+        <activity
+            android:name="org.mitre.svmp.activities.AppRTCVideoActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
+        <activity
+            android:name="org.mitre.svmp.activities.AppRTCRefreshAppsActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
+        <activity
+            android:name="org.mitre.svmp.activities.AppRTCChangePasswordActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
 
         <!-- Background service -->
-        <service android:name="org.mitre.svmp.services.SessionService"/>
-        
+        <service android:name="org.mitre.svmp.services.SessionService" />
+
         <!-- Memorizing Trust Manager library integration -->
         <activity android:name="de.duenndns.ssl.MemorizingActivity" />
 
         <!-- allows shortcuts to be launched from the desktop -->
-        <activity android:name="org.mitre.svmp.activities.AppList"
-                  android:label="@string/appList_title"
-                  android:exported="true"/>
+        <activity
+            android:name="org.mitre.svmp.activities.AppList"
+            android:exported="true"
+            android:label="@string/appList_title" />
     </application>
+
 </manifest>

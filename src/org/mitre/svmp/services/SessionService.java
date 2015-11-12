@@ -35,6 +35,7 @@ import org.mitre.svmp.performance.PerformanceAdapter;
 import org.mitre.svmp.protocol.SVMPProtocol;
 import org.mitre.svmp.protocol.SVMPProtocol.AuthResponse.AuthResponseType;
 import org.mitre.svmp.protocol.SVMPProtocol.Response;
+import com.citicrowd.oval.R;
 
 /**
  * @author Joe Portner

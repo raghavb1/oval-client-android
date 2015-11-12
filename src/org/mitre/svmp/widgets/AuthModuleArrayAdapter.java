@@ -15,7 +15,7 @@
  */
 package org.mitre.svmp.widgets;
 
-import android.R;
+import com.citicrowd.oval.R;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +32,7 @@ public class AuthModuleArrayAdapter extends ArrayAdapter<IAuthType> {
     private int mSpinnerDropDownLayoutResId;
 
     public AuthModuleArrayAdapter(Context context, IAuthType[] authTypes) {
-        this(context, R.layout.simple_spinner_item, R.layout.simple_spinner_dropdown_item, authTypes);
+        this(context, android.R.layout.simple_spinner_item, android.R.layout.simple_spinner_dropdown_item, authTypes);
     }
 
     public AuthModuleArrayAdapter(Context context, int spinnerResId, int spinnerDropDownResId, IAuthType[] authTypes) {

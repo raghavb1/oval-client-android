@@ -16,7 +16,7 @@
 package org.mitre.svmp.common;
 
 import android.os.Build;
-import org.mitre.svmp.client.R;
+import com.citicrowd.oval.R;
 
 /**
  * @author Joe Portner

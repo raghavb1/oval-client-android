@@ -46,7 +46,7 @@ package org.mitre.svmp.apprtc;
 import android.util.Log;
 import org.json.JSONObject;
 import org.mitre.svmp.activities.AppRTCVideoActivity;
-import org.mitre.svmp.client.R;
+import com.citicrowd.oval.R;
 import org.webrtc.PeerConnection;
 import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;

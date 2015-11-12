@@ -16,9 +16,19 @@
 
 package org.mitre.svmp.activities;
 
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import com.citicrowd.oval.R;
 import com.google.protobuf.ByteString;
 import org.mitre.svmp.common.AppInfo;
 import org.mitre.svmp.common.Utility;
@@ -38,14 +48,37 @@ public class AppRTCRefreshAppsActivity extends AppRTCActivity {
     private static final String TAG = AppRTCRefreshAppsActivity.class.getName();
 
     private boolean fullRefresh;
+    ProgressBar preparingPbar;
+
+  
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+       
+    	
+      
+        preparingTextView.setText("Preparing your Apps");
+      
         Intent intent = getIntent();
         this.fullRefresh = intent.getBooleanExtra("fullRefresh", false);
     }
-
+    
+  
+    
+    @Override
+    protected void startProgressDialog() {
+    	// not needed
+    }
+    @Override
+    public void stopProgressDialog() {
+    	// TODO Auto-generated method stub
+//not needed
+    }
+    
+   
+    
+   
     // MessageHandler interface method
     // Called when the client connection is established
     @Override

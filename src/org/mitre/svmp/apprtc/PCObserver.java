@@ -48,7 +48,7 @@ import android.util.Log;
 import org.appspot.apprtc.VideoStreamsView;
 import org.json.JSONObject;
 import org.mitre.svmp.activities.AppRTCVideoActivity;
-import org.mitre.svmp.client.R;
+import com.citicrowd.oval.R;
 import org.webrtc.*;
 
 import java.util.LinkedList;

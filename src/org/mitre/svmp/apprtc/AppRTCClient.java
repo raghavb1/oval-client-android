@@ -50,7 +50,7 @@ import org.mitre.svmp.performance.PerformanceTimer;
 import org.mitre.svmp.services.SessionService;
 import org.mitre.svmp.activities.AppRTCActivity;
 import org.mitre.svmp.auth.AuthData;
-import org.mitre.svmp.client.R;
+import com.citicrowd.oval.R;
 import org.mitre.svmp.common.*;
 import org.mitre.svmp.protocol.SVMPProtocol.*;
 import org.mitre.svmp.common.StateMachine.STATE;
@@ -131,7 +131,7 @@ public class AppRTCClient extends Binder implements Constants {
 
             if (useSSL) {
                 sslConfig = new SSLConfig(connectionInfo, activity);
-                error = sslConfig.configure();
+                		error = sslConfig.configure();
             }
 
             if (error == 0)
@@ -208,11 +208,14 @@ public class AppRTCClient extends Binder implements Constants {
 
             passwordChange = jsonRequest.has("newPassword");
             int rPort = connectionInfo.getPort();
-            String proto = useSSL ? "https" : "http",
-                    rHost = connectionInfo.getHost(),
+            				String proto = useSSL ? "https" : "http",
+            							rHost = connectionInfo.getHost(),
                     // if we're changing our password, use a different API
-                    api = passwordChange ? "changePassword" : "login",
-                    uri = String.format("%s://%s:%d/%s", proto, rHost, rPort, api);
+            								api = passwordChange ? "changePassword" : "login",
+            											uri = String.format("%s://%s:%d/%s", proto, rHost, rPort, api);
+            				
+            				
+            				
 
             // set up HttpParams
             HttpParams params = new BasicHttpParams();

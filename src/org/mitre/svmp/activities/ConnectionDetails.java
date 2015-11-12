@@ -33,7 +33,7 @@ import org.mitre.svmp.common.Constants;
 import org.mitre.svmp.auth.AuthRegistry;
 import org.mitre.svmp.auth.module.CertificateModule;
 import org.mitre.svmp.auth.type.IAuthType;
-import org.mitre.svmp.client.R;
+import com.citicrowd.oval.R;
 import org.mitre.svmp.common.Utility;
 import org.mitre.svmp.widgets.AuthModuleArrayAdapter;
 
@@ -159,7 +159,9 @@ public class ConnectionDetails extends SvmpActivity {
         }
         int encryptionType = encryptionView.getSelectedItemPosition(),
                 authType = authTypes[authTypeView.getSelectedItemPosition()].getID();
-
+        
+        //set encryption type and auth type both to one
+//not needed
         String certificateAlias = getCertificateAlias();
         boolean certAuthType = checkAuthTypeCert(authTypeView.getSelectedItemPosition());
 
@@ -180,8 +182,12 @@ public class ConnectionDetails extends SvmpActivity {
             toastShort(R.string.connectionDetails_toast_certAuthNeedsAlias);
         else {
             // create a new ConnectionInfo object
+        	//needed
             ConnectionInfo connectionInfo = new ConnectionInfo(updateID, description, username, host, port,
                     encryptionType, authType, certificateAlias, 0);
+            
+            //enrytpion type and auth type to one and certificate to a blank string
+            //update id gives connection id that is  zero in this case
 
             // insert or update the ConnectionInfo in the database
             long result;

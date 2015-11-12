@@ -20,7 +20,7 @@ import org.mitre.svmp.activities.AppRTCActivity;
 import org.mitre.svmp.apprtc.AppRTCClient;
 import org.mitre.svmp.common.DatabaseHandler;
 import org.mitre.svmp.common.Utility;
-import org.mitre.svmp.client.R;
+import com.citicrowd.oval.R;
 
 import java.util.Date;
 import java.util.Timer;

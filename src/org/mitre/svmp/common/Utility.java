@@ -29,7 +29,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import org.mitre.svmp.activities.AppList;
-import org.mitre.svmp.client.R;
+import com.citicrowd.oval.R;
 import org.mitre.svmp.protocol.SVMPProtocol.LocationRequest;
 import org.mitre.svmp.protocol.SVMPProtocol.LocationUpdate;
 import org.mitre.svmp.protocol.SVMPProtocol.LocationProviderInfo;

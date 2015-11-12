@@ -13,7 +13,6 @@ ant.importBuild 'custom_rules.xml'
 dependencies {
     /*compile files('libs/svmp-protocol.jar','libs/armeabi-v7a/libwebrtc-video-demo-jni.so')*/
     //compile files('libs/libjingle_peerconnection.jar', '../svmp-protocol-def/protobuf-2.5.0/protobuf-java-2.5.0.jar')
-
     compile project(':MemorizingTrustManager')
     compile project(':SecureWebSockets')
     compile project(':svmp-protocol-def')
@@ -32,8 +31,8 @@ android.applicationVariants.all { variant ->
 }
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "19"
+    compileSdkVersion 22
+    buildToolsVersion '22.0.1'
 
     defaultConfig {
 // Let these come from the AndroidManifest.xml

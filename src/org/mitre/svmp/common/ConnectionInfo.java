@@ -21,84 +21,107 @@ import org.mitre.svmp.auth.module.CertificateModule;
 /**
  * @author Joe Portner
  */
-public class ConnectionInfo implements Constants{
-    private int connectionID;
-    private String description;
-    private String username;
-    private String host;
-    private int port;
-    private int encryptionType;
-    private int authType;
-    private String certificateAlias;
-    private int appCount;
+public class ConnectionInfo implements Constants {
+	private int connectionID;
+	private String description;
+	private String username;
+	private String host;
+	private int port;
+	private int encryptionType;
+	private int authType;
+	private String certificateAlias;
+	private int appCount;
+	private int status;
 
-    // constructor
-    public ConnectionInfo(int connectionID, String description, String username, String host, int port,
-                          int encryptionType, int authType, String certificateAlias, int appCount) {
-        this.connectionID = connectionID;
-        this.description = description;
-        this.username = username;
-        this.host = host;
-        this.port = port;
-        this.encryptionType = encryptionType;
-        this.authType = authType;
-        this.certificateAlias = certificateAlias;
-        this.appCount = appCount;
-    }
+	// constructor
+	public ConnectionInfo(int connectionID, String description, String username, String host, int port,
+			int encryptionType, int authType, String certificateAlias, int appCount) {
+		this.connectionID = connectionID;
+		this.description = description;
+		this.username = username;
+		this.host = host;
+		this.port = port;
+		this.encryptionType = encryptionType;
+		this.authType = authType;
+		this.certificateAlias = certificateAlias;
+		this.appCount = appCount;
+	}
 
-    // getters
-    public int getConnectionID() {
-        return connectionID;
-    }
+	public ConnectionInfo(int connectionID, String description, String username, String host, int port,
+			int encryptionType, int authType, String certificateAlias, int appCount, int status) {
+		this.connectionID = connectionID;
+		this.description = description;
+		this.username = username;
+		this.host = host;
+		this.port = port;
+		this.encryptionType = encryptionType;
+		this.authType = authType;
+		this.certificateAlias = certificateAlias;
+		this.appCount = appCount;
+		this.status=status;
+	}
 
-    public String getDescription() {
-        return description;
-    }
+	public int getStatus() {
+		return status;
+	}
 
-    public String getUsername() {
-        return username;
-    }
+	public void setStatus(int status) {
+		this.status = status;
+	}
 
-    public String getHost() {
-        return host;
-    }
+	// getters
+	public int getConnectionID() {
+		return connectionID;
+	}
 
-    public int getPort() {
-        return port;
-    }
+	public String getDescription() {
+		return description;
+	}
 
-    public int getEncryptionType() {
-        return encryptionType;
-    }
+	public String getUsername() {
+		return username;
+	}
 
-    public int getAuthType() {
-        return authType;
-    }
+	public String getHost() {
+		return host;
+	}
 
-    public String getCertificateAlias() {
-        return certificateAlias;
-    }
+	public int getPort() {
+		return port;
+	}
 
-    public int getAppCount() {
-        return appCount;
-    }
+	public int getEncryptionType() {
+		return encryptionType;
+	}
 
-    // used to describe each ConnectionInfo in ConnectionList activity
-    public String lineOneText() {
-        return description;
-    }
+	public int getAuthType() {
+		return authType;
+	}
 
-    public String lineTwoText() {
-        boolean certAuthType = (authType & CertificateModule.AUTH_MODULE_ID) == CertificateModule.AUTH_MODULE_ID;
-        String text = username;
-        if (certAuthType && certificateAlias.length() > 0)
-            text = certificateAlias;
-        String authDesc = AuthRegistry.getAuthType(authType).getDescription();
-        return String.format("%s, %s@%s:%d", authDesc, text, host, port);
-    }
+	public String getCertificateAlias() {
+		return certificateAlias;
+	}
 
-    public String buttonText() {
-        return String.format("%d Apps", appCount);
-    }
+	public int getAppCount() {
+		return appCount;
+	}
+
+	// used to describe each ConnectionInfo in ConnectionList activity
+	public String lineOneText() {
+		return description;
+	}
+
+	public String lineTwoText() {
+		boolean certAuthType = (authType & CertificateModule.AUTH_MODULE_ID) == CertificateModule.AUTH_MODULE_ID;
+		String text = username;
+		if (certAuthType && certificateAlias.length() > 0)
+			text = certificateAlias;
+		String authDesc = AuthRegistry.getAuthType(authType).getDescription();
+		return String.format("%s, %s@%s:%d", authDesc, text, host, port);
+	}
+
+	public String buttonText() {
+		return String.format("%d Apps", appCount);
+	}
 
 }

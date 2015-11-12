@@ -27,7 +27,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-import org.mitre.svmp.client.R;
+import com.citicrowd.oval.R;
 import org.mitre.svmp.common.Constants;
 import org.mitre.svmp.common.DatabaseHandler;
 import org.mitre.svmp.performance.MeasurementInfo;

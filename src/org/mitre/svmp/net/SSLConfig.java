@@ -24,7 +24,7 @@ import de.duenndns.ssl.MemorizingTrustManager;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.mitre.svmp.auth.SVMPKeyManager;
 import org.mitre.svmp.auth.module.CertificateModule;
-import org.mitre.svmp.client.R;
+import com.citicrowd.oval.R;
 import org.mitre.svmp.common.ConnectionInfo;
 import org.mitre.svmp.common.Constants;
 import org.mitre.svmp.common.Utility;

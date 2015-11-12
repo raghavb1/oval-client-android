@@ -21,7 +21,7 @@ import android.os.Bundle;
 import android.view.*;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import org.mitre.svmp.client.R;
+import com.citicrowd.oval.R;
 import org.mitre.svmp.common.AppInfo;
 import org.mitre.svmp.common.Utility;
 import org.mitre.svmp.widgets.AppInfoArrayAdapter;

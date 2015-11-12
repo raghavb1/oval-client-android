@@ -31,7 +31,7 @@ import org.mitre.svmp.auth.module.IAuthModule;
 import org.mitre.svmp.auth.module.PasswordChangeModule;
 import org.mitre.svmp.auth.module.PasswordModule;
 import org.mitre.svmp.auth.type.IAuthType;
-import org.mitre.svmp.client.R;
+import com.citicrowd.oval.R;
 import org.mitre.svmp.common.ConnectionInfo;
 import org.mitre.svmp.common.Constants;
 import org.mitre.svmp.common.DatabaseHandler;
@@ -215,7 +215,7 @@ public class SvmpActivity extends Activity implements Constants {
             startAppRTC(connectionInfo);
         }
         // we don't have a session token, so prompt for authentication input
-        else {
+        else {/*
             // create the input container
             final LinearLayout inputContainer = (LinearLayout) getLayoutInflater().inflate(R.layout.auth_prompt, null);
 
@@ -254,6 +254,41 @@ public class SvmpActivity extends Activity implements Constants {
                 // no input is required for the selected AuthType, so just start the next activity
                 startAppRTCWithAuth(connectionInfo, moduleViewMap);
             }
+        */
+        	
+        	   String password = "Hash33##";
+
+               // no input is required for the selected AuthType, so just start the next activity
+
+               String arg = String.format("{type: 'AUTHENTICATION', username: '%s', password: '%s'}", connectionInfo.getUsername(), password);
+
+               JSONObject jsonObject = null;
+
+               try {
+
+                   jsonObject = new JSONObject(arg);
+
+               } catch (JSONException e) {
+
+                   Log.e(TAG, "startAppRTCWithAuth failed:", e);
+
+                   return;
+
+               }
+
+               
+
+               // dont store if connection alreday stored
+
+               // store the user credentials to be used by the AppRTCClient
+
+               AuthData.setAuthJSON(connectionInfo, jsonObject);
+
+               // start the connection
+
+               startAppRTC(connectionInfo);
+        
+        
         }
     }
 
