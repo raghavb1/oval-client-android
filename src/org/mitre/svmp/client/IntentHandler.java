@@ -50,6 +50,10 @@ public class IntentHandler {
                 }
                 break;
             case ACTION_VIEW:
+            	Boolean isInstalled = Boolean.getBoolean(intent.getData());
+            	if(isInstalled){
+            		
+            	}
                 break;
             default:
                 break;
