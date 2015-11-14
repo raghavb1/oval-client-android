@@ -3,18 +3,19 @@ package com.oval.app.adapters;
 import java.util.List;
 
 import org.mitre.svmp.activities.ConnectionList;
-import com.citicrowd.oval.R;
+import org.mitre.svmp.client.SendNetIntent;
 import org.mitre.svmp.common.Constants;
 import org.mitre.svmp.common.DatabaseHandler;
 
-import com.oval.app.activities.OvalLoginActivity;
 import com.oval.app.activities.OvalSearchActivity;
 import com.oval.app.vo.SearchResultItemVO;
 import com.squareup.picasso.Picasso;
 
+import android.R;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +23,6 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class SearchListAdapter extends BaseAdapter {
 
@@ -90,14 +90,20 @@ public class SearchListAdapter extends BaseAdapter {
 
 						if (dbHandler.getAppInfo(1, searchItem.getApkId()) != null) {
 							i.putExtra("pkgName", searchItem.getApkId());
+							activity.startActivity(i);
 						} else {
-							i.putExtra("pkgName", activity.getString(R.string.oval_app_services_pkgname));
-
-							i.putExtra("apkPath",
-									activity.getString(R.string.services_prefix_url) + searchItem.getApkPath());
+//							i.putExtra("pkgName", activity.getString(R.string.oval_app_services_pkgname));
+//
+//							i.putExtra("apkPath",
+//									activity.getString(R.string.services_prefix_url) + searchItem.getApkPath());
+							
+							Intent intent = new Intent(activity, SendNetIntent.class);
+							Uri.Builder builder = new Uri.Builder();
+							builder.appendQueryParameter("type", "downloadAndInstall");
+							builder.appendQueryParameter("url", "");
+							intent.setData(builder.build());
+							activity.startActivity(intent);
 						}
-
-						activity.startActivity(i);
 
 					}
 				}
