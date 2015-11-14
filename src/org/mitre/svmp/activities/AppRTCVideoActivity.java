@@ -47,6 +47,7 @@ package org.mitre.svmp.activities;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.gesture.GestureOverlayView;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -87,33 +88,25 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 	private KeyHandler keyHandler;
 	private ConfigHandler configHandler;
 	private String apkPath;
-	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		
+
 		// Get info passed to Intent
 		final Intent intent = getIntent();
 		pkgName = intent.getStringExtra("pkgName");
 		apkPath = intent.getStringExtra("apkPath");
 
-	
-		
-
 		super.onCreate(savedInstanceState);
-		preparingTextView.setText("Preparing your App");
-	      
+
 	}
-	
-	  @Override
-	    protected void startProgressDialog() {
-	    	// not needed
-	    }
-	    @Override
-	    public void stopProgressDialog() {
-	    	// TODO Auto-generated method stub
-	//not needed
-	    }
+
+	/*
+	 * @Override protected void startProgressDialog() { // not needed }
+	 * 
+	 * @Override public void stopProgressDialog() { // TODO Auto-generated
+	 * method stub //not needed }
+	 */
 
 	@Override
 	protected void connectToRoom() {
@@ -126,9 +119,10 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		Point displaySize = new Point();
 		getWindowManager().getDefaultDisplay().getSize(displaySize);
 		vsv = new VideoStreamsView(this, displaySize, performanceAdapter);
-		vsv.setBackgroundColor(Color.DKGRAY); // start this VideoStreamsView
+		vsv.setBackgroundColor(Color.WHITE); // start this VideoStreamsView
 												// with a color of dark gray
 		setContentView(vsv);
+		
 
 		touchHandler = new TouchHandler(this, displaySize, performanceAdapter);
 		rotationHandler = new RotationHandler(this);
@@ -181,18 +175,16 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		return value;
 	}
 
-	/*@Override
-	protected void startProgressDialog() {
-		vsv.setBackgroundColor(Color.DKGRAY); // if it isn't already set, make
-												// the background color dark
-												// gray
-		super.startProgressDialog();
-	}*/
+	/*
+	 * @Override protected void startProgressDialog() {
+	 * vsv.setBackgroundColor(Color.DKGRAY); // if it isn't already set, make //
+	 * the background color dark // gray super.startProgressDialog(); }
+	 */
 
 	@Override
 	public void onPause() {
-		vsv.onPause();
-		super.onPause();
+		// vsv.onPause();
+		super.onPause(true);
 	}
 
 	@Override

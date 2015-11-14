@@ -227,6 +227,17 @@ public class AppRTCActivity extends Activity implements StateObserver, MessageHa
 		if (proxying)
 			disconnectAndExit();
 	}
+	
+	
+	public void onPause(boolean videoRunning) {
+		super.onPause();
+		if(!videoRunning)
+		{
+			if (proxying)
+				disconnectAndExit();
+		}
+	
+	}
 
 	// Log |msg| and Toast about it.
 	public void logAndToast(final int resID) {
