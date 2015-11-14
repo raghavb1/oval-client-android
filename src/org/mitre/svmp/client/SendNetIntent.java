@@ -47,7 +47,7 @@ public class SendNetIntent extends Activity
 
 //		RemoteServerClient.sendMessage(msg.build());
 		
-		activity.sendMessage(msg);
+		activity.sendMessage(msg.build());
 		
 //		finish();
 	}
