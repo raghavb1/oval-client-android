@@ -209,7 +209,7 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		sendMessage(request.build());
 
 		touchHandler.sendScreenInfoMessage();
-		rotationHandler.initRotationUpdates();
+		//rotationHandler.initRotationUpdates();
 
 		// send the initial configuration to the VM
 		Configuration config = getResources().getConfiguration();
