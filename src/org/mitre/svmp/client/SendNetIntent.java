@@ -15,11 +15,11 @@ limitations under the License.
 */
 package org.mitre.svmp.client;
 
-import org.mitre.svmp.activities.AppRTCActivity;
 //import org.mitre.svmp.RemoteServerClient;
 import org.mitre.svmp.protocol.SVMPProtocol;
 import org.mitre.svmp.protocol.SVMPProtocol.IntentAction;
 import org.mitre.svmp.protocol.SVMPProtocol.Request.RequestType;
+import org.mitre.svmp.services.SessionService;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -27,7 +27,7 @@ import android.util.Log;
 
 public class SendNetIntent extends Activity
 {
-    private AppRTCActivity activity;
+    private SessionService service;
 	
 	private static final String TAG = "SendNetIntent";
 	@Override
@@ -47,8 +47,8 @@ public class SendNetIntent extends Activity
 
 //		RemoteServerClient.sendMessage(msg.build());
 		
-		activity.sendMessage(msg.build());
+		service.sendMessage(msg.build());
 		
-//		finish();
+		finish();
 	}
 }
