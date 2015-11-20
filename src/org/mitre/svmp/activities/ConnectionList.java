@@ -85,9 +85,9 @@ public class ConnectionList extends SvmpActivity {
 		if (intent.hasExtra("connectionID")) {
 
 			// add entry in database with connection ID and pass it here
-			int id = intent.getIntExtra("connectionID", 0);
+		//	int id = intent.getIntExtra("connectionID", 1);
 			// ConnectionInfo connectionInfo = dbHandler.getConnectionInfo(id);
-			ConnectionInfo connectionInfo = dbHandler.getConnectionInfoList().get(id);
+			ConnectionInfo connectionInfo = dbHandler.getConnectionInfo(1);
 			if (connectionInfo != null) {
 				// if we allow use of desktop mode, start the connection;
 				// otherwise take us to this connection's app list

@@ -16,6 +16,8 @@ limitations under the License.
 package org.mitre.svmp.client;
 
 import org.mitre.svmp.activities.AppRTCActivity;
+import org.mitre.svmp.common.AppInfo;
+import org.mitre.svmp.common.DatabaseHandler;
 //import org.mitre.svmp.RemoteServerClient;
 import org.mitre.svmp.protocol.SVMPProtocol;
 import org.mitre.svmp.protocol.SVMPProtocol.IntentAction;
@@ -25,14 +27,18 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 
-public class SendNetIntent extends Activity
+public class SendNetIntent extends AppRTCActivity
 {
     private AppRTCActivity activity;
 	
 	private static final String TAG = "SendNetIntent";
+	
+	private DatabaseHandler dbHandler;
+
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		dbHandler=new DatabaseHandler(this);
 		
 		//Put together the Intent protobuffer.
 		Log.i(TAG,"GOING TO SEND URL INTENT with URL: "+getIntent().getDataString());
@@ -47,8 +53,22 @@ public class SendNetIntent extends Activity
 
 //		RemoteServerClient.sendMessage(msg.build());
 		
-		activity.sendMessage(msg.build());
+		sendMessage(msg.build());
 		
 //		finish();
+	}
+	
+	@Override
+	public void onBackPressed() {
+		// TODO Auto-generated method stub
+		
+		
+		AppInfo appInfo=dbHandler.getNotInstalledAppInfo(1);
+	
+		dbHandler.deleteAppInfo(appInfo);
+		
+		super.onBackPressed();
+		
+		
 	}
 }

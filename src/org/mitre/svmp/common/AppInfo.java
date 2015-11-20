@@ -23,70 +23,100 @@ import android.util.Log;
  * @author Joe Portner
  */
 public class AppInfo {
-    private static String TAG = AppInfo.class.getName();
+	private static String TAG = AppInfo.class.getName();
 
-    private int connectionID; // foreign key
-    private String packageName;
-    private String appName;
-    private boolean favorite;
-    private byte[] icon;
-    private byte[] iconHash;
+	private int connectionID; // foreign key
+	private String packageName;
+	private String appName;
+	private boolean favorite;
+	private byte[] icon;
 
-    public AppInfo(int connectionID, String packageName, String appName, boolean favorite, byte[] icon, byte[] iconHash) {
-        this.connectionID = connectionID;
-        this.packageName = packageName;
-        this.appName = appName;
-        this.favorite = favorite;
-        this.icon = icon;
-        this.iconHash = iconHash;
-    }
+	public int getIsInstalled() {
+		if(isInstalled!=null)
+		{
+			return isInstalled;
+		}
+		return 1;
+	
+	}
 
-    public int getConnectionID() {
-        return connectionID;
-    }
+	public void setIsInstalled(int isInstalled) {
+		this.isInstalled = isInstalled;
+	}
 
-    public String getPackageName() {
-        return packageName;
-    }
+	private byte[] iconHash;
+	private Integer isInstalled;
 
-    public String getAppName() {
-        return appName;
-    }
+	public AppInfo(int connectionID, String packageName, String appName, boolean favorite, byte[] icon,
+			byte[] iconHash) {
+		this.connectionID = connectionID;
+		this.packageName = packageName;
+		this.appName = appName;
+		this.favorite = favorite;
+		this.icon = icon;
+		this.iconHash = iconHash;
+	}
 
-    public boolean isFavorite() {
-        return favorite;
-    }
+	public AppInfo(int connectionID, String packageName, String appName, boolean favorite, byte[] icon, byte[] iconHash,
+			int isInstalled) {
+		this.connectionID = connectionID;
+		this.packageName = packageName;
+		this.appName = appName;
+		this.favorite = favorite;
+		this.icon = icon;
+		this.iconHash = iconHash;
+		this.isInstalled = isInstalled;
+	}
 
-    public byte[] getIcon() {
-        if (icon != null && icon.length > 0)
-            return icon.clone();
-        return null;
-    }
+	public int getConnectionID() {
+		return connectionID;
+	}
 
-    public byte[] getIconHash() {
-        if (iconHash != null && iconHash.length > 0)
-            return iconHash.clone();
-        return null;
-    }
+	public String getPackageName() {
+		return packageName;
+	}
 
-    public String toString() {
-        return appName;
-    }
+	public String getAppName() {
+		return appName;
+	}
 
-    // tries to construct a bitmap from the icon byte array, returns null in case of failure
-    public Bitmap getBitmap() {
-        Bitmap bitmap = null;
+	public boolean isFavorite() {
+		return favorite;
+	}
 
-        if (icon != null && icon.length > 0) {
-            try {
-                bitmap = BitmapFactory.decodeByteArray(icon, 0, icon.length);
-            } catch (Exception e) {
-                Log.e(TAG, String.format("Failed decoding icon for app: " +
-                        "[connectionID '%d', packageName '%s', appName '%s']",
-                        connectionID, packageName, appName));
-            }
-        }
+	public byte[] getIcon() {
+		if (icon != null && icon.length > 0)
+			return icon.clone();
+		return null;
+	}
 
-        return bitmap;
-    }
+	public byte[] getIconHash() {
+		if (iconHash != null && iconHash.length > 0)
+			return iconHash.clone();
+		return null;
+	}
+
+	public String toString() {
+		return appName;
+	}
+
+	// tries to construct a bitmap from the icon byte array, returns null in
+	// case of failure
+	public Bitmap getBitmap() {
+		Bitmap bitmap = null;
+
+		if (icon != null && icon.length > 0) {
+			try {
+				bitmap = BitmapFactory.decodeByteArray(icon, 0, icon.length);
+			} catch (Exception e) {
+				Log.e(TAG,
+						String.format(
+								"Failed decoding icon for app: "
+										+ "[connectionID '%d', packageName '%s', appName '%s']",
+								connectionID, packageName, appName));
+			}
+		}
+
+		return bitmap;
+	}
 }

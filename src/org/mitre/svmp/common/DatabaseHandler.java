@@ -100,7 +100,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             {"AppName", "TEXT"},
             {"Favorite", "BOOLEAN"},
             {"Icon", "BLOB"},
-            {"IconHash", "BLOB"}
+            {"IconHash", "BLOB"},
+            {"isInstalled", "INTEGER DEFAULT 1"}
         }
     };
 
@@ -518,6 +519,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public AppInfo getAppInfo(int connectionID, String packageName) {
         return _getAppInfo("ConnectionID=? AND PackageName=?", String.valueOf(connectionID), packageName);
     }
+    
+    public AppInfo getNotInstalledAppInfo(int connectionID) {
+        return _getAppInfo("ConnectionID=? AND isInstalled=?", String.valueOf(connectionID), "0");
+    }
 
     private AppInfo _getAppInfo(String selection, String... selectionArgs) {
         // prepared statement for speed and security
@@ -650,8 +655,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             byte[] iconHash = null;
             if (!cursor.isNull(5))
                 iconHash = cursor.getBlob(5);
+            
+            int isInstalled = cursor.getInt(6);
 
-            return new AppInfo(connectionID, packageName, appName, favorite, icon, iconHash);
+            return new AppInfo(connectionID, packageName, appName, favorite, icon, iconHash, isInstalled);
         } catch( Exception e ) {
             e.printStackTrace();
             return null;
@@ -825,6 +832,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             contentValues.put("PackageName", appInfo.getPackageName());
             contentValues.put("AppName", appInfo.getAppName());
             contentValues.put("Favorite", appInfo.isFavorite());
+            contentValues.put("isInstalled", appInfo.getIsInstalled());
             byte[] icon = appInfo.getIcon();
             if (icon != null)
                 contentValues.put("Icon", icon);

@@ -23,54 +23,74 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 import com.citicrowd.oval.R;
+
+import org.mitre.svmp.activities.ConnectionList;
+import org.mitre.svmp.common.AppInfo;
+import org.mitre.svmp.common.Constants;
+import org.mitre.svmp.common.DatabaseHandler;
 import org.mitre.svmp.protocol.SVMPProtocol;
 
 /**
- * @author Joe Portner
- * Receives Intents from the server to act upon on the client-side
+ * @author Joe Portner Receives Intents from the server to act upon on the
+ *         client-side
  */
 public class IntentHandler {
-    private static final String TAG = IntentHandler.class.getName();
+	private static final String TAG = IntentHandler.class.getName();
 
-    public static void inspect(SVMPProtocol.Response response, Context context) {
-        SVMPProtocol.Intent intent = response.getIntent();
-        switch(intent.getAction()) {
-            case ACTION_DIAL:
-                Log.d(TAG, String.format("Received 'call' Intent for number '%s'", intent.getData()));
-                int telephonyEnabled = isTelephonyEnabled(context);
-                if (telephonyEnabled == 0) {
-                    Intent call = new Intent(Intent.ACTION_CALL);
-                    call.setData(Uri.parse(intent.getData()));
-                    context.startActivity(call);
-                }
-                else {
-                    // phone calls are not supported on this device; send a Toast to the user to let them know
-                    Toast toast = Toast.makeText(context, telephonyEnabled, Toast.LENGTH_LONG);
-                    toast.show();
-                }
-                break;
-            case ACTION_VIEW:
-            	Boolean isInstalled = Boolean.getBoolean(intent.getData());
-            	if(isInstalled){
-            		
-            	}
-                break;
-            default:
-                break;
-        }
-    }
+	public static void inspect(SVMPProtocol.Response response, Context context) {
+		SVMPProtocol.Intent intent = response.getIntent();
+		switch (intent.getAction()) {
+		case ACTION_DIAL:
+			Log.d(TAG, String.format("Received 'call' Intent for number '%s'", intent.getData()));
+			int telephonyEnabled = isTelephonyEnabled(context);
+			if (telephonyEnabled == 0) {
+				Intent call = new Intent(Intent.ACTION_CALL);
+				call.setData(Uri.parse(intent.getData()));
+				context.startActivity(call);
+			} else {
+				// phone calls are not supported on this device; send a Toast to
+				// the user to let them know
+				Toast toast = Toast.makeText(context, telephonyEnabled, Toast.LENGTH_LONG);
+				toast.show();
+			}
+			break;
+		case ACTION_VIEW:
+			Boolean isInstalled = Boolean.getBoolean(intent.getData());
+			if (isInstalled) {
 
-    // returns an error message if telephony is not enabled
-    private static int isTelephonyEnabled(Context context){
-        int resId = 0;
-        TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        if (tm != null) {
-            if (tm.getPhoneType() != TelephonyManager.PHONE_TYPE_GSM
-                    && !context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELEPHONY))
-                resId = R.string.intentHandler_toast_noTelephonyCDMA;
-            else if (tm.getSimState() != TelephonyManager.SIM_STATE_READY)
-                resId = R.string.intentHandler_toast_noTelephonyGSM;
-        }
-        return resId;
-    }
+				DatabaseHandler dbHandler = new DatabaseHandler(context);
+
+				AppInfo appInfo = dbHandler.getNotInstalledAppInfo(1);
+				if (appInfo != null) {
+					dbHandler.updateAppInfo(appInfo);
+
+					Intent i = new Intent(context, ConnectionList.class);
+					i.setAction(Constants.ACTION_LAUNCH_APP);
+					//i.putExtra("connectionID", 0);
+
+					i.putExtra("pkgName", appInfo.getPackageName());
+
+					context.startActivity(i);
+				}
+
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	// returns an error message if telephony is not enabled
+	private static int isTelephonyEnabled(Context context) {
+		int resId = 0;
+		TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+		if (tm != null) {
+			if (tm.getPhoneType() != TelephonyManager.PHONE_TYPE_GSM
+					&& !context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELEPHONY))
+				resId = R.string.intentHandler_toast_noTelephonyCDMA;
+			else if (tm.getSimState() != TelephonyManager.SIM_STATE_READY)
+				resId = R.string.intentHandler_toast_noTelephonyGSM;
+		}
+		return resId;
+	}
 }

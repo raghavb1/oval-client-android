@@ -102,7 +102,7 @@ public class AppList extends SvmpActivity {
 			apkPath = intent.getStringExtra("apkPath");
 
 			AppInfo appInfo = dbHandler.getAppInfo(connectionID, packageName); //
-
+			
 			openApp(appInfo, false); // open the app; if we return without
 										// errors, finish the activity
 		}

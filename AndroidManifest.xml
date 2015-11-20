@@ -81,7 +81,7 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            </intent-filter>
             -->
         </activity>
         <activity android:name="com.oval.app.activities.OvalAccountApprovalActivity" >
@@ -89,8 +89,7 @@
         <activity android:name="com.oval.app.activities.OvalSearchActivity" >
         </activity>
         <activity android:name="com.oval.app.activities.OvalSplashActivity" >
-            
-             <intent-filter android:label="@string/app_name" >
+            <intent-filter android:label="@string/app_name" >
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -105,7 +104,7 @@
             <intent-filter android:label="@string/app_name">
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
+            </intent-filter>
             -->
         </activity>
         <activity

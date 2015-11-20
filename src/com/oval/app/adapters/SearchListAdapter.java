@@ -4,14 +4,14 @@ import java.util.List;
 
 import org.mitre.svmp.activities.ConnectionList;
 import org.mitre.svmp.client.SendNetIntent;
+import org.mitre.svmp.common.AppInfo;
 import org.mitre.svmp.common.Constants;
 import org.mitre.svmp.common.DatabaseHandler;
 
-import com.oval.app.activities.OvalSearchActivity;
+import com.citicrowd.oval.R;
 import com.oval.app.vo.SearchResultItemVO;
 import com.squareup.picasso.Picasso;
 
-import android.R;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -86,23 +86,34 @@ public class SearchListAdapter extends BaseAdapter {
 						i.setAction(Constants.ACTION_LAUNCH_APP);
 						// Intent i = new Intent(OvalLoginActivity.this,
 						// OvalSearchActivity.class);
-						i.putExtra("connectionID", 0);
+						i.putExtra("connectionID", 1);
 
 						if (dbHandler.getAppInfo(1, searchItem.getApkId()) != null) {
 							i.putExtra("pkgName", searchItem.getApkId());
 							activity.startActivity(i);
 						} else {
-//							i.putExtra("pkgName", activity.getString(R.string.oval_app_services_pkgname));
-//
-//							i.putExtra("apkPath",
-//									activity.getString(R.string.services_prefix_url) + searchItem.getApkPath());
+							// i.putExtra("pkgName",
+							// activity.getString(R.string.oval_app_services_pkgname));
+							//
+							// i.putExtra("apkPath",
+							// activity.getString(R.string.services_prefix_url)
+							// + searchItem.getApkPath());
+
+							AppInfo appinfo = new AppInfo(1, searchItem.getApkId(), searchItem.getBasename(), false,
+									null, null, 0);
+							long result = dbHandler.insertAppInfo(appinfo);
+
 							
-							Intent intent = new Intent(activity, SendNetIntent.class);
-							Uri.Builder builder = new Uri.Builder();
-							builder.appendQueryParameter("type", "downloadAndInstall");
-							builder.appendQueryParameter("url", "");
-							intent.setData(builder.build());
-							activity.startActivity(intent);
+							if (result > -1) {
+								Intent intent = new Intent(activity, SendNetIntent.class);
+								Uri.Builder builder = new Uri.Builder();
+								builder.scheme("http").authority("oval.co.in");
+								builder.appendQueryParameter("type", "downloadAndInstall");
+								builder.appendQueryParameter("url",
+										activity.getString(R.string.services_prefix_url) + searchItem.getApkPath());
+								intent.setData(builder.build());
+								activity.startActivity(intent);
+							}
 						}
 
 					}

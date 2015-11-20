@@ -96,6 +96,8 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		final Intent intent = getIntent();
 		pkgName = intent.getStringExtra("pkgName");
 		apkPath = intent.getStringExtra("apkPath");
+	/*    getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+	    getActionBar().hide();*/
 
 		super.onCreate(savedInstanceState);
 
@@ -209,7 +211,7 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		sendMessage(request.build());
 
 		touchHandler.sendScreenInfoMessage();
-		rotationHandler.initRotationUpdates();
+		//rotationHandler.initRotationUpdates();
 
 		// send the initial configuration to the VM
 		Configuration config = getResources().getConfiguration();
