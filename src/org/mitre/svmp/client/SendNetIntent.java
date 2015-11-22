@@ -15,13 +15,17 @@ limitations under the License.
 */
 package org.mitre.svmp.client;
 
+//<<<<<<< HEAD
 import org.mitre.svmp.activities.AppRTCActivity;
 import org.mitre.svmp.common.AppInfo;
 import org.mitre.svmp.common.DatabaseHandler;
+//=======
+//>>>>>>> branch 'master' of https://github.com/raghavb1/oval-client-android
 //import org.mitre.svmp.RemoteServerClient;
 import org.mitre.svmp.protocol.SVMPProtocol;
 import org.mitre.svmp.protocol.SVMPProtocol.IntentAction;
 import org.mitre.svmp.protocol.SVMPProtocol.Request.RequestType;
+import org.mitre.svmp.services.SessionService;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -29,7 +33,7 @@ import android.util.Log;
 
 public class SendNetIntent extends AppRTCActivity
 {
-    private AppRTCActivity activity;
+  //  private SessionService service;
 	
 	private static final String TAG = "SendNetIntent";
 	
@@ -53,9 +57,13 @@ public class SendNetIntent extends AppRTCActivity
 
 //		RemoteServerClient.sendMessage(msg.build());
 		
+//<<<<<<< HEAD
 		sendMessage(msg.build());
+//=======
+		//service.sendMessage(msg.build());
+//>>>>>>> branch 'master' of https://github.com/raghavb1/oval-client-android
 		
-//		finish();
+		finish();
 	}
 	
 	@Override
