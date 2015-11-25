@@ -17,6 +17,7 @@ package org.mitre.svmp.client;
 
 //<<<<<<< HEAD
 import org.mitre.svmp.activities.AppRTCActivity;
+import org.mitre.svmp.activities.AppRTCVideoActivity;
 import org.mitre.svmp.common.AppInfo;
 import org.mitre.svmp.common.DatabaseHandler;
 //=======
@@ -31,9 +32,9 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 
-public class SendNetIntent extends AppRTCActivity
+public class SendNetIntent extends AppRTCVideoActivity
 {
-  //  private SessionService service;
+    private SessionService service;
 	
 	private static final String TAG = "SendNetIntent";
 	
@@ -60,10 +61,10 @@ public class SendNetIntent extends AppRTCActivity
 //<<<<<<< HEAD
 		sendMessage(msg.build());
 //=======
-		//service.sendMessage(msg.build());
+//		service.sendMessage(msg.build());
 //>>>>>>> branch 'master' of https://github.com/raghavb1/oval-client-android
 		
-		finish();
+		//finish();
 	}
 	
 	@Override

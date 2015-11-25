@@ -130,7 +130,7 @@ public class AppRTCActivity extends Activity implements StateObserver, MessageHa
 
 		// Get info passed to Intent
 		final Intent intent = getIntent();
-		connectionInfo = dbHandler.getConnectionInfo(intent.getIntExtra("connectionID", 0));
+		connectionInfo = dbHandler.getConnectionInfo(intent.getIntExtra("connectionID", 1));
 
 		if (connectionInfo != null)
 			connectToRoom();
@@ -186,7 +186,10 @@ public class AppRTCActivity extends Activity implements StateObserver, MessageHa
 		public void onServiceConnected(ComponentName className, IBinder iBinder) {
 			// We've bound to SessionService, cast the IBinder and get
 			// SessionService instance
+			
+			Log.i("info", "Service Connected");
 			appRtcClient = (AppRTCClient) iBinder;
+			Log.i("checking", appRtcClient.toString());
 			performanceAdapter.setPerformanceData(appRtcClient.getPerformance());
 			bound = true;
 
@@ -196,6 +199,7 @@ public class AppRTCActivity extends Activity implements StateObserver, MessageHa
 
 		@Override
 		public void onServiceDisconnected(ComponentName arg0) {
+			Log.i("info", "Service disonnected");
 		}
 	};
 

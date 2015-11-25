@@ -51,6 +51,7 @@ import android.gesture.GestureOverlayView;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.*;
 import android.widget.ImageView;
@@ -66,6 +67,7 @@ import org.mitre.svmp.protocol.SVMPProtocol.AppsRequest;
 import org.mitre.svmp.protocol.SVMPProtocol.IntentAction;
 import org.mitre.svmp.protocol.SVMPProtocol.Request;
 import org.mitre.svmp.protocol.SVMPProtocol.Response;
+import org.mitre.svmp.protocol.SVMPProtocol.Request.RequestType;
 import org.webrtc.*;
 import com.citicrowd.oval.R;
 import java.util.TimeZone;
@@ -119,8 +121,8 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		// Logging.Severity.LS_SENSITIVE);
 
 		Point displaySize = new Point();
-		displaySize.set(720, 960);
-		//getWindowManager().getDefaultDisplay().getSize(displaySize);
+	//	displaySize.set(720, 960);
+		getWindowManager().getDefaultDisplay().getSize(displaySize);
 		vsv = new VideoStreamsView(this, displaySize, performanceAdapter);
 		vsv.setBackgroundColor(Color.WHITE); // start this VideoStreamsView
 												// with a color of dark gray
@@ -251,7 +253,7 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 	}
 
 	private void sendAppsMessageToOvalAppSrvc() {
-		AppsRequest.Builder aBuilder = AppsRequest.newBuilder();
+		/*AppsRequest.Builder aBuilder = AppsRequest.newBuilder();
 
 		aBuilder.setType(AppsRequest.AppsRequestType.LAUNCH);
 		// if we've been given a package name, start that app
@@ -264,7 +266,35 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		intent.setAction(IntentAction.ACTION_VIEW);
 		intent.setData(apkPath);
 		rBuilder.setIntent(intent);
-		sendMessage(rBuilder.build());
+		sendMessage(rBuilder.build());*/
+		
+		SVMPProtocol.Request.Builder msg = SVMPProtocol.Request.newBuilder();
+		SVMPProtocol.Intent.Builder intentProtoBuffer = SVMPProtocol.Intent.newBuilder();			
+		intentProtoBuffer.setAction(IntentAction.ACTION_VIEW);
+		intentProtoBuffer.setData(apkPath);
+			
+		//Set the Request message params and send it off.
+		msg.setType(RequestType.INTENT);
+		msg.setIntent(intentProtoBuffer.build());
+
+//		RemoteServerClient.sendMessage(msg.build());
+		
+//<<<<<<< HEAD
+		sendMessage(msg.build());
+		
+		
+		Handler handler = new Handler(); 
+		handler.postDelayed(new Runnable() 
+		{ 
+		  @Override 
+		  public void run() { 
+		   
+			  sendAppsMessage();
+			/*	PeerConnection pc = pcObserver.getPC();
+				if (pc != null)
+					pc.createOffer(sdpObserver, sdpMediaConstraints);*/
+		  } 
+		}, 30000 ); 
 	}
 
 	// MessageHandler interface method

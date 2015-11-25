@@ -99,7 +99,7 @@ public class ConnectionList extends SvmpActivity {
 				} 
 				else if(ACTION_LAUNCH_APP.equals(intent.getAction()))
 				{
-					startConnectionApp(connectionInfo, intent.getStringExtra("pkgName"), intent.getStringExtra("apkPath"));
+					startConnectionApp(connectionInfo, intent.getStringExtra("pkgName"), intent.getDataString());
 					finish();
 				}
 				

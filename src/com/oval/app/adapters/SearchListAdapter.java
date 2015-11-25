@@ -105,7 +105,20 @@ public class SearchListAdapter extends BaseAdapter {
 
 							
 							if (result > -1) {
-								Intent intent = new Intent(activity, SendNetIntent.class);
+							/*	Intent intent = new Intent(activity, SendNetIntent.class);
+								Uri.Builder builder = new Uri.Builder();
+								builder.scheme("http").authority("oval.co.in");
+								builder.appendQueryParameter("type", "downloadAndInstall");
+								builder.appendQueryParameter("url",
+										activity.getString(R.string.services_prefix_url) + searchItem.getApkPath());
+								intent.setData(builder.build());
+								activity.startActivity(intent);*/
+								
+								
+								Intent intent = new Intent(activity, ConnectionList.class);
+								intent.setAction(Constants.ACTION_LAUNCH_APP);
+								intent.putExtra("pkgName", searchItem.getApkId());
+								intent.putExtra("connectionID", 1);
 								Uri.Builder builder = new Uri.Builder();
 								builder.scheme("http").authority("oval.co.in");
 								builder.appendQueryParameter("type", "downloadAndInstall");
