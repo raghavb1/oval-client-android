@@ -25,6 +25,8 @@ import android.os.Bundle;
 import android.view.*;
 import android.widget.GridView;
 import com.citicrowd.oval.R;
+
+import org.mitre.svmp.client.SendNetIntent;
 import org.mitre.svmp.common.AppInfo;
 import org.mitre.svmp.common.ConnectionInfo;
 
@@ -177,7 +179,14 @@ public class AppList extends SvmpActivity {
 				intent.putExtra("fullRefresh", true);
 		} else {
 			// we're starting the video feed and launching a specific app
+			if(apkPath==null)
+			{
 			intent.setClass(AppList.this, AppRTCVideoActivity.class);
+			}
+			else
+			{
+				intent.setClass(AppList.this, SendNetIntent.class);
+			}
 			intent.putExtra("pkgName", sendAppInfo.getPackageName());
 			intent.putExtra("apkPath", apkPath);
 		}

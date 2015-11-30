@@ -120,9 +120,14 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		// EnumSet.of(Logging.TraceLevel.TRACE_ALL),
 		// Logging.Severity.LS_SENSITIVE);
 
-		Point displaySize = new Point();
-	//	displaySize.set(720, 960);
-		getWindowManager().getDefaultDisplay().getSize(displaySize);
+		Point deviceDisplaySize = new Point();
+		//displaySize.set(720, 1280);
+		getWindowManager().getDefaultDisplay().getSize(deviceDisplaySize);
+		
+		Point displaySize= new Point();
+		displaySize.set(deviceDisplaySize.x, deviceDisplaySize.y * (16/9));
+		
+		
 		vsv = new VideoStreamsView(this, displaySize, performanceAdapter);
 		vsv.setBackgroundColor(Color.WHITE); // start this VideoStreamsView
 												// with a color of dark gray

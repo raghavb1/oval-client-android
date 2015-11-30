@@ -11,11 +11,20 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="80dp" />
 
+    <ImageView
+        android:id="@+id/splashIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/oval_icon"
+        android:layout_marginTop="30dp" />
+
     <TextView
         android:id="@+id/preparingTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/splashIcon"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="115dp"
         android:text="Preparing...."
@@ -27,7 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/preparingTextView"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp" />
+        android:layout_marginTop="10dp" />
 
     <ImageView
         android:id="@+id/appLoadingImgVw"
@@ -36,7 +45,7 @@
         android:layout_alignLeft="@+id/preparingPbar"
         android:layout_alignParentTop="true"
         android:layout_marginTop="45dp"
-        android:src="@drawable/svmp_app_icon" 
-        android:visibility="gone"/>
+        android:src="@drawable/svmp_app_icon"
+        android:visibility="gone" />
 
 </RelativeLayout>

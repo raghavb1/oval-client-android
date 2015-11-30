@@ -29,24 +29,42 @@ import org.mitre.svmp.protocol.SVMPProtocol.Request.RequestType;
 import org.mitre.svmp.services.SessionService;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 
-public class SendNetIntent extends AppRTCVideoActivity
+public class SendNetIntent extends AppRTCActivity
 {
     private SessionService service;
 	
 	private static final String TAG = "SendNetIntent";
 	
 	private DatabaseHandler dbHandler;
+	
+	private String pkgName;
+	private String apkPath;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		dbHandler=new DatabaseHandler(this);
 		
+		 preparingTextView.setText("Preparing your App");
+		
+		
+		final Intent intent = getIntent();
+		pkgName = intent.getStringExtra("pkgName");
+		apkPath = intent.getStringExtra("apkPath");
+	/*    getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+	    getActionBar().hide();*/
+
+		//super.onCreate(savedInstanceState);
+		
+		//sendAppsMessageToOvalAppSrvc();
+		
 		//Put together the Intent protobuffer.
-		Log.i(TAG,"GOING TO SEND URL INTENT with URL: "+getIntent().getDataString());
+	/*	Log.i(TAG,"GOING TO SEND URL INTENT with URL: "+getIntent().getDataString());
 		SVMPProtocol.Request.Builder msg = SVMPProtocol.Request.newBuilder();
 		SVMPProtocol.Intent.Builder intentProtoBuffer = SVMPProtocol.Intent.newBuilder();			
 		intentProtoBuffer.setAction(IntentAction.ACTION_VIEW);
@@ -65,8 +83,47 @@ public class SendNetIntent extends AppRTCVideoActivity
 //>>>>>>> branch 'master' of https://github.com/raghavb1/oval-client-android
 		
 		//finish();
+*/	}
+	
+	
+	@Override
+	protected void startProgressDialog() {
+		// TODO Auto-generated method stub
+		//super.startProgressDialog();
 	}
 	
+	@Override
+	public void stopProgressDialog() {
+		// TODO Auto-generated method stub
+	//	super.stopProgressDialog();
+	}
+	
+	private void sendAppsMessageToOvalAppSrvc() {
+	
+		
+		SVMPProtocol.Request.Builder msg = SVMPProtocol.Request.newBuilder();
+		SVMPProtocol.Intent.Builder intentProtoBuffer = SVMPProtocol.Intent.newBuilder();			
+		intentProtoBuffer.setAction(IntentAction.ACTION_VIEW);
+		intentProtoBuffer.setData(apkPath);
+			
+		//Set the Request message params and send it off.
+		msg.setType(RequestType.INTENT);
+		msg.setIntent(intentProtoBuffer.build());
+
+
+		sendMessage(msg.build());
+		
+		
+		
+	}
+	
+	@Override
+	public void onOpen() {
+		// TODO Auto-generated method stub
+		super.onOpen();
+		
+		sendAppsMessageToOvalAppSrvc();
+	}
 	@Override
 	public void onBackPressed() {
 		// TODO Auto-generated method stub

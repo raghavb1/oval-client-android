@@ -23,7 +23,10 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 import com.citicrowd.oval.R;
+import com.oval.app.activities.OvalAccountApprovalActivity;
 
+import org.mitre.svmp.activities.AppList;
+import org.mitre.svmp.activities.AppRTCVideoActivity;
 import org.mitre.svmp.activities.ConnectionList;
 import org.mitre.svmp.common.AppInfo;
 import org.mitre.svmp.common.Constants;
@@ -56,19 +59,27 @@ public class IntentHandler {
 			break;
 		case ACTION_VIEW:
 			Boolean isInstalled = Boolean.getBoolean(intent.getData());
-			if (isInstalled) {
+			if (!isInstalled) {
 
 				DatabaseHandler dbHandler = new DatabaseHandler(context);
 
 				AppInfo appInfo = dbHandler.getNotInstalledAppInfo(1);
 				if (appInfo != null) {
+					appInfo.setIsInstalled(1);
 					dbHandler.updateAppInfo(appInfo);
 
-					Intent i = new Intent(context, ConnectionList.class);
-					i.setAction(Constants.ACTION_LAUNCH_APP);
+					Intent i = new Intent(context, AppRTCVideoActivity.class);
+					i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					//i.setAction(Constants.ACTION_LAUNCH_APP);
 					//i.putExtra("connectionID", 0);
-
+				//	intent.setClass(AppList.this, AppRTCVideoActivity.class);
 					i.putExtra("pkgName", appInfo.getPackageName());
+					
+					
+				
+			
+			
+				
 
 					context.startActivity(i);
 				}

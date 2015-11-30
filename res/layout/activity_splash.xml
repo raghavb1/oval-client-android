@@ -4,18 +4,21 @@
     android:layout_height="match_parent"
      >
     
-    <TextView 
+  
+    
+    <ImageView 
+        
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/splashText"
-        android:text="splash"
+        android:id="@+id/splashIcon"
+       android:src="@drawable/oval_icon"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"/>
     
     <ProgressBar android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/splashPrgrssBr"
-        android:layout_below="@id/splashText"
+        android:layout_below="@id/splashIcon"
         android:layout_centerHorizontal="true"/>
     
 

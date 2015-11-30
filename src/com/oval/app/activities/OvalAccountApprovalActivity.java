@@ -72,6 +72,7 @@ public class OvalAccountApprovalActivity extends SvmpActivity implements OnClick
 			int id = intent.getIntExtra("connectionID", 0);
 			// ConnectionInfo connectionInfo = dbHandler.getConnectionInfo(id);
 			connectionInfo = dbHandler.getConnectionInfoList().get(id);
+			//connectionInfo.setStatus(status);
 		}
 
 		pDialog = new ProgressDialog(this);

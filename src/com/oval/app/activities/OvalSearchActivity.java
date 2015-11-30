@@ -40,20 +40,32 @@ import com.oval.app.network.CustomSSLSocketFactory;
 import com.oval.app.network.HTTPServiceHandler;
 import com.oval.app.vo.LoginResultVO;
 import com.oval.app.vo.RawSearchResultVO;
+import com.quinny898.library.persistentsearch.SearchBox;
+import com.quinny898.library.persistentsearch.SearchResult;
+import com.quinny898.library.persistentsearch.SearchBox.MenuListener;
+import com.quinny898.library.persistentsearch.SearchBox.SearchListener;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnKeyListener;
+import android.view.Window;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.PopupMenu;
+import android.widget.Toast;
 
-public class OvalSearchActivity extends SvmpActivity implements OnKeyListener {
+public class OvalSearchActivity extends SvmpActivity  {
 
 	EditText appSearchEditText;
 	ProgressDialog pDialog;
@@ -62,16 +74,97 @@ public class OvalSearchActivity extends SvmpActivity implements OnKeyListener {
 
 	Gson gson = new Gson();
 	RawSearchResultVO rawSearchResultVO;
+	
+	Boolean isSearch;
+	private SearchBox search;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
+		
+		
 		super.onCreate(savedInstanceState, R.layout.activity_search);
 
-		appSearchEditText = (EditText) findViewById(R.id.appSearchEditText);
-		appSearchEditText.setOnKeyListener(this);
+		search = (SearchBox) findViewById(R.id.searchbox);
+		search.setLogoText("OVAL");
+        search.enableVoiceRecognition(this);
+		/*for(int x = 0; x < 10; x++){
+			SearchResult option = new SearchResult("Result " + Integer.toString(x), getResources().getDrawable(R.drawable.ic_history));
+			search.addSearchable(option);
+		}*/
+		search.setMenuListener(new MenuListener(){
+
+			@Override
+			public void onMenuClick() {
+				//Hamburger has been clicked
+			//	Toast.makeText(OvalSearchActivity.this, "Menu click", Toast.LENGTH_LONG).show();				
+			}
+			
+		});
+		
+		
+		search.setSearchListener(new SearchListener(){
+
+			@Override
+			public void onSearchOpened() {
+				//Use this to tint the screen
+			}
+
+			@Override
+			public void onSearchClosed() {
+				//Use this to un-tint the screen
+				
+			//	Toast.makeText(OvalSearchActivity.this, "Searched Closed", Toast.LENGTH_LONG).show();
+			}
+
+			@Override
+			public void onSearchTermChanged(String term) {
+				//React to the search term changing
+				//Called after it has updated results
+			}
+
+			@Override
+			public void onSearch(String searchTerm) {
+				//Toast.makeText(OvalSearchActivity.this, searchTerm +" Searched", Toast.LENGTH_LONG).show();
+		
+				if(!searchTerm.isEmpty())
+				{
+					makeSearch(searchTerm);
+				}
+			
+			}
+
+			@Override
+			public void onResultClick(SearchResult result) {
+				//React to a result being clicked
+			}
+
+			@Override
+			public void onSearchCleared() {
+				//Called when the clear button is clicked
+				
+			//	Toast.makeText(OvalSearchActivity.this, "Searched Closed", Toast.LENGTH_LONG).show();
+			}
+			
+		});
+      /*  search.setOverflowMenu(R.menu.overflow_menu);
+        search.setOverflowMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.test_menu_item:
+                        Toast.makeText(OvalSearchActivity.this, "Clicked!", Toast.LENGTH_SHORT).show();
+                        return true;
+                }
+                return false;
+            }
+        });*/
+		
+		
+		/*appSearchEditText = (EditText) findViewById(R.id.appSearchEditText);
+		appSearchEditText.setOnKeyListener(this);*/
 		searchResultListView=(ListView) findViewById(R.id.searchResultListView);
-		tempSearchBtn=(Button) findViewById(R.id.tempSearchBtn);
+	/*	tempSearchBtn=(Button) findViewById(R.id.tempSearchBtn);
 		tempSearchBtn.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
@@ -80,15 +173,20 @@ public class OvalSearchActivity extends SvmpActivity implements OnKeyListener {
 				
 				String searchStr = appSearchEditText.getText().toString();
 				if (!searchStr.isEmpty()) {
+					
+					
+				     InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+			            imm.hideSoftInputFromWindow(appSearchEditText.getWindowToken(), 
+			                                      InputMethodManager.RESULT_UNCHANGED_SHOWN);
 					makeSearch(searchStr);
 				}
 				
 			}
-		});
+		});*/
 
 	}
 
-	@Override
+	/*@Override
 	public boolean onKey(View v, int keyCode, KeyEvent event) {
 		// TODO Auto-generated method stub
 
@@ -112,7 +210,7 @@ public class OvalSearchActivity extends SvmpActivity implements OnKeyListener {
 		}
 
 		return false;
-	}
+	}*/
 
 	private void makeSearch(String searchStr) {
 		// TODO Auto-generated method stub
@@ -165,6 +263,21 @@ public class OvalSearchActivity extends SvmpActivity implements OnKeyListener {
 		}
 
 	}
+	
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == 1234 && resultCode == RESULT_OK) {
+			ArrayList<String> matches = data
+					.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+			search.populateEditText(matches.get(0));
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+	
+	/*public void reveal(View v){
+		startActivity(new Intent(this, RevealActivity.class));
+	}*/
 
 	public void updateUI() {
 		// TODO Auto-generated method stub
