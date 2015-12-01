@@ -6,8 +6,8 @@
 
     <ImageView
         android:id="@+id/appIconImageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
         android:layout_centerVertical="true"
         android:src="@drawable/svmp_app_icon" />
 

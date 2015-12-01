@@ -26,6 +26,8 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.mitre.svmp.activities.AppList;
+import org.mitre.svmp.activities.AppRTCRefreshAppsActivity;
 import org.mitre.svmp.activities.ConnectionList;
 import org.mitre.svmp.activities.SvmpActivity;
 import com.citicrowd.oval.R;
@@ -56,7 +58,7 @@ public class OvalAccountApprovalActivity extends SvmpActivity implements OnClick
 	LoginRequestVO loginRequestVo = new LoginRequestVO();
 	Gson gson = new Gson();
 	LoginResultVO loginResultVo = new LoginResultVO();
-	
+	private int sendRequestCode;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +74,7 @@ public class OvalAccountApprovalActivity extends SvmpActivity implements OnClick
 			int id = intent.getIntExtra("connectionID", 0);
 			// ConnectionInfo connectionInfo = dbHandler.getConnectionInfo(id);
 			connectionInfo = dbHandler.getConnectionInfoList().get(id);
-			//connectionInfo.setStatus(status);
+			// connectionInfo.setStatus(status);
 		}
 
 		pDialog = new ProgressDialog(this);
@@ -193,7 +195,7 @@ public class OvalAccountApprovalActivity extends SvmpActivity implements OnClick
 
 	}
 
-	private void updateUI(boolean isSignedIn) {
+	/*private void updateUI(boolean isSignedIn) {
 
 		if (isSignedIn) {
 
@@ -211,5 +213,123 @@ public class OvalAccountApprovalActivity extends SvmpActivity implements OnClick
 
 		}
 
+	}*/
+
+	private void updateUI(boolean isSignedIn) {
+		String status = loginResultVo.getApproved();
+
+		if (isSignedIn) {
+			
+			if (status.equalsIgnoreCase("true")) {
+
+				long result;
+				
+				connectionInfo.setStatus(OvalLoginActivity.STATUS_LOGGEDIN);
+
+				result = dbHandler.updateConnectionInfo(connectionInfo);
+				if (result > -1) {
+					/*
+					 * Intent i = new Intent(OvalLoginActivity.this,
+					 * ConnectionList.class); i.setAction(ACTION_LAUNCH_APP);
+					 */
+
+					refreshApps(connectionInfo);
+					/*
+					 * Intent i = new Intent(OvalLoginActivity.this,
+					 * OvalSearchActivity.class); i.putExtra("connectionID", 0);
+					 * startActivity(i); finish();
+					 */
+				}
+			} else {
+				Toast.makeText(OvalAccountApprovalActivity.this, "Not yet Approved", Toast.LENGTH_LONG).show();
+			}
+
+			// enrytpion type and auth type to one and certificate to a
+			// blank string
+			// update id gives connection id that is zero in this case
+
+			// insert or update the ConnectionInfo in the database
+
+			/*
+			 * if (.equalsIgnoreCase("true")) {
+			 * 
+			 * 
+			 * } else {
+			 * 
+			 * }
+			 */
+
+		} else {
+			Intent i = new Intent(OvalAccountApprovalActivity.this, OvalSearchActivity.class);
+			i.putExtra("connectionID", 0);
+			startActivity(i);
+			finish();
+		}
 	}
+
+	private void refreshApps(ConnectionInfo connectionInfo) {
+		// TODO Auto-generated method stub
+
+		this.sendRequestCode = AppList.REQUEST_REFRESHAPPS_FULL;
+		authPrompt(connectionInfo); // utilizes "startActivityForResult", which
+									// uses this.sendRequestCode
+
+	}
+	
+	
+	@Override
+	protected void afterStartAppRTC(ConnectionInfo connectionInfo) {
+		// after we have handled the auth prompt and made sure the service is
+		// started...
+
+		// create explicit intent
+		Intent intent = new Intent();
+		if (this.sendRequestCode == AppList.REQUEST_REFRESHAPPS_QUICK
+				|| this.sendRequestCode == AppList.REQUEST_REFRESHAPPS_FULL) {
+			// we're refreshing our cached list of apps that reside on the VM
+			intent.setClass(OvalAccountApprovalActivity.this, AppRTCRefreshAppsActivity.class);
+			if (this.sendRequestCode == AppList.REQUEST_REFRESHAPPS_FULL)
+				intent.putExtra("fullRefresh", true);
+		}
+
+		intent.putExtra("connectionID", connectionInfo.getConnectionID());
+
+		// start the AppRTCActivity
+		startActivityForResult(intent, this.sendRequestCode);
+		
+	}
+	
+	
+	@Override
+	protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
+		// TODO Auto-generated method stub
+		if (requestCode == AppList.REQUEST_REFRESHAPPS_QUICK || requestCode == AppList.REQUEST_REFRESHAPPS_FULL) {
+			if (responseCode == RESULT_CANCELED) {
+				// the activity ended before processing the Apps response
+				toastShort(R.string.appList_toast_refreshFail);
+			} else if (responseCode == RESULT_OK) {
+				toastShort(R.string.appList_toast_refreshSuccess);
+
+				super.onActivityResult(requestCode, RESULT_REPOPULATE, intent);
+
+				Intent i = new Intent(OvalAccountApprovalActivity.this, OvalSearchActivity.class);
+				i.putExtra("connectionID", 0);
+				startActivity(i);
+				finish();
+			} else {
+				// this is probably a result of an AUTH_FAIL, let superclass
+				// handle it
+				super.onActivityResult(requestCode, responseCode, intent);
+			}
+		} else if (responseCode == RESULT_CANCELED && requestCode == AppList.REQUEST_STARTAPP_FINISH) {
+			// the user intentionally canceled the activity, and we are
+			// supposed to finish this activity after resuming
+			finish();
+		} else // fall back to superclass method
+			super.onActivityResult(requestCode, responseCode, intent);
+
+	}
+	
 }
+
+

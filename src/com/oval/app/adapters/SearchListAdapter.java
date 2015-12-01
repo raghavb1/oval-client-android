@@ -144,7 +144,8 @@ public class SearchListAdapter extends BaseAdapter {
 				Picasso.with(activity)
 						.load(activity.getString(R.string.services_prefix_url) + searchItem.getIconPath()
 								+ searchItem.getLargeIcon())
-						.placeholder(R.drawable.ic_launcher).into(holder.appIconImageView);
+						.placeholder(R.drawable.ic_launcher)
+						.into(holder.appIconImageView);
 			}
 		}
 		return convertView;

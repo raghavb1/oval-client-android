@@ -85,7 +85,13 @@ public class VideoStreamsView
 
     // used for performance instrumentation
     this.spi = spi;
+    
+    setVerticalScrollBarEnabled(true);
+    setHorizontalScrollBarEnabled(true);
+    scrollTo(500, 1300);
   }
+  
+
 
   /** Queue |frame| to be uploaded. */
   public void queueFrame(final Endpoint stream, I420Frame frame) {

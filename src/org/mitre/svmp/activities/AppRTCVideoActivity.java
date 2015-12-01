@@ -55,6 +55,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.*;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.appspot.apprtc.VideoStreamsView;
@@ -120,18 +121,22 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		// EnumSet.of(Logging.TraceLevel.TRACE_ALL),
 		// Logging.Severity.LS_SENSITIVE);
 
-		Point deviceDisplaySize = new Point();
+		//Point deviceDisplaySize = new Point();
 		//displaySize.set(720, 1280);
-		getWindowManager().getDefaultDisplay().getSize(deviceDisplaySize);
+		//getWindowManager().getDefaultDisplay().getSize(deviceDisplaySize);
 		
 		Point displaySize= new Point();
-		displaySize.set(deviceDisplaySize.x, deviceDisplaySize.y * (16/9));
+		//displaySize.set(deviceDisplaySize.x, deviceDisplaySize.y * (16/9));
 		
+		displaySize.set(720, 3500);
 		
 		vsv = new VideoStreamsView(this, displaySize, performanceAdapter);
 		vsv.setBackgroundColor(Color.WHITE); // start this VideoStreamsView
 												// with a color of dark gray
-		setContentView(vsv);
+		
+		ScrollView scv= new ScrollView(this);
+		scv.addView(vsv);
+		setContentView(scv);
 		
 
 		touchHandler = new TouchHandler(this, displaySize, performanceAdapter);
