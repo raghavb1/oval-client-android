@@ -126,10 +126,10 @@ public class VideoStreamsView
 //      localFrame = framesToRender.remove(Endpoint.LOCAL);
       remoteFrame = framesToRender.remove(Endpoint.REMOTE);
     }
-//    if (localFrame != null) {
-//      texImage2D(localFrame, yuvTextures[0]);
-//      framePool.returnFrame(localFrame);
-//    }
+  /*  if (localFrame != null) {
+      texImage2D(localFrame, yuvTextures[0]);
+      framePool.returnFrame(localFrame);
+    }*/
     if (remoteFrame != null) {
       texImage2D(remoteFrame, yuvTextures[1]);
       framePool.returnFrame(remoteFrame);

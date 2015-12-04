@@ -61,6 +61,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -120,6 +121,8 @@ public class OvalLoginActivity extends SvmpActivity
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState, R.layout.activity_login);
+		
+	
 
 		btnSignIn = (SignInButton) findViewById(R.id.btn_sign_in);
 

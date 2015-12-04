@@ -21,6 +21,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 import com.citicrowd.oval.R;
 import com.oval.app.activities.OvalAccountApprovalActivity;
@@ -58,36 +59,73 @@ public class IntentHandler {
 			}
 			break;
 		case ACTION_VIEW:
-			Boolean isInstalled = Boolean.getBoolean(intent.getData());
-			if (!isInstalled) {
 
-				DatabaseHandler dbHandler = new DatabaseHandler(context);
+			switch (intent.getData().toString()) {
+			case "keyboardStarted":
 
-				AppInfo appInfo = dbHandler.getNotInstalledAppInfo(1);
-				if (appInfo != null) {
-					appInfo.setIsInstalled(1);
-					dbHandler.updateAppInfo(appInfo);
-
-					Intent i = new Intent(context, AppRTCVideoActivity.class);
-					i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-					//i.setAction(Constants.ACTION_LAUNCH_APP);
-					//i.putExtra("connectionID", 0);
-				//	intent.setClass(AppList.this, AppRTCVideoActivity.class);
-					i.putExtra("pkgName", appInfo.getPackageName());
-					
-					
 				
-			
-			
 				
+				/*InputMethodManager imm = (InputMethodManager)   context.getSystemService(context.INPUT_METHOD_SERVICE);
+				imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);*/
+				break;
 
-					context.startActivity(i);
-				}
+			case "true":
 
+				startApp(intent, context);
+
+				break;
+
+			default:
+				break;
 			}
+			/*
+			 * Boolean isInstalled = Boolean.getBoolean(intent.getData()); if
+			 * (!isInstalled) {
+			 * 
+			 * DatabaseHandler dbHandler = new DatabaseHandler(context);
+			 * 
+			 * AppInfo appInfo = dbHandler.getNotInstalledAppInfo(1); if
+			 * (appInfo != null) { appInfo.setIsInstalled(1);
+			 * dbHandler.updateAppInfo(appInfo);
+			 * 
+			 * Intent i = new Intent(context, AppRTCVideoActivity.class);
+			 * i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			 * //i.setAction(Constants.ACTION_LAUNCH_APP);
+			 * //i.putExtra("connectionID", 0); // intent.setClass(AppList.this,
+			 * AppRTCVideoActivity.class); i.putExtra("pkgName",
+			 * appInfo.getPackageName());
+			 * 
+			 * 
+			 * 
+			 * 
+			 * 
+			 * 
+			 * 
+			 * context.startActivity(i); }
+			 * 
+			 * }
+			 */
 			break;
 		default:
 			break;
+		}
+	}
+
+	public static void startApp(SVMPProtocol.Intent intent, Context context) {
+		DatabaseHandler dbHandler = new DatabaseHandler(context);
+
+		AppInfo appInfo = dbHandler.getNotInstalledAppInfo(1);
+		if (appInfo != null) {
+			appInfo.setIsInstalled(1);
+			dbHandler.updateAppInfo(appInfo);
+
+			Intent i = new Intent(context, AppRTCVideoActivity.class);
+			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			i.putExtra("pkgName", appInfo.getPackageName());
+
+			context.startActivity(i);
+			
+			
 		}
 	}
 
