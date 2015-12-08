@@ -46,11 +46,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final int TABLE_MEASUREMENT_INFO = 1; // groups together performance data
     public static final int TABLE_PERFORMANCE_DATA = 2; // raw performance data
     public static final int TABLE_APPS = 3; // app data for each connection
+    public static final int TABLE_SEARCH_HISTORY=4; // search for each connection
     public static final String[] Tables = new String[]{
         "Connections",
         "MeasurementInfo",
         "PerformanceData",
-        "Apps"
+        "Apps",
+        "SearchHistory"
     };
 
     // this is used to generate queries to create new tables with appropriate constraints
@@ -102,7 +104,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             {"Icon", "BLOB"},
             {"IconHash", "BLOB"},
             {"isInstalled", "INTEGER DEFAULT 1"}
-        }
+        },{
+     	   {"SearchString", "TEXT", "PRIMARY KEY"}
+     }
     };
 
     private SQLiteDatabase db;
@@ -413,6 +417,39 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         return value;
     }
+    
+    
+    public List<String> getAllSearchHistory() {
+        Cursor cursor = getDb().query(
+                Tables[TABLE_SEARCH_HISTORY], // table
+                null, // columns (null == "*")
+                null, // selection ('where' clause)
+                null, // selection args
+                null, // group by
+                null, // having
+                null // order by
+        );
+
+        // try to get results and add MeasurementInfo objects to the list
+        List<String> historyInfoList = new ArrayList<String>();
+        while (cursor.moveToNext()) {
+            // construct a new MeasurementInfo from the cursor
+            String history = cursor.getString(0);
+
+            // add the MeasurementInfo to the list
+            if (history != null)
+                historyInfoList.add(history);
+        }
+
+        // cleanup
+        try {
+            cursor.close();
+        } catch (Exception e) {
+            // don't care
+        }
+
+        return historyInfoList;
+    }
 
     public List<MeasurementInfo> getAllMeasurementInfo() {
         Cursor cursor = getDb().query(
@@ -678,6 +715,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         contentValues.put("PingInterval", measurementInfo.getPingInterval());
 
         return insertRecord(TABLE_MEASUREMENT_INFO, contentValues);
+    }
+    
+    public long insertSearchHistory(String searchHistory) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("SearchString", searchHistory);
+
+        return insertRecord(TABLE_SEARCH_HISTORY, contentValues);
     }
 
     public long insertPerformanceData(long startDate, SpanPerformanceData spanMeasurements,

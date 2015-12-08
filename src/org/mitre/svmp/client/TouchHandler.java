@@ -16,12 +16,14 @@
 package org.mitre.svmp.client;
 
 import org.mitre.svmp.activities.AppRTCActivity;
+import org.mitre.svmp.activities.AppRTCVideoActivity;
 import org.mitre.svmp.common.Constants;
 import org.mitre.svmp.performance.PerformanceAdapter;
 import org.mitre.svmp.protocol.SVMPProtocol;
 import org.mitre.svmp.protocol.SVMPProtocol.Request.RequestType;
 
 import android.graphics.Point;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -33,14 +35,14 @@ public class TouchHandler implements Constants {
 
     private static final String TAG = TouchHandler.class.getName();
 
-    private AppRTCActivity activity;
+    private AppRTCVideoActivity activity;
     private PerformanceAdapter spi;
     private Point displaySize;
 
     private float xScaleFactor, yScaleFactor = 0;
     private boolean gotScreenInfo = false;
 
-    public TouchHandler(AppRTCActivity activity, Point displaySize, PerformanceAdapter spi) {
+    public TouchHandler(AppRTCVideoActivity activity, Point displaySize, PerformanceAdapter spi) {
         this.activity = activity;
         this.displaySize = displaySize;
         this.spi = spi;
@@ -76,6 +78,16 @@ public class TouchHandler implements Constants {
 
         // increment the touch update count for performance measurement
         spi.incrementTouchUpdates();
+        activity.getVSV().onPause();
+        Handler handler = new Handler(); 
+        handler.postDelayed(new Runnable() 
+        { 
+          @Override 
+          public void run() { 
+             
+                activity.getVSV().onResume();
+          } 
+        }, 2000 ); 
 
         // Create Protobuf message builders
         SVMPProtocol.Request.Builder msg = SVMPProtocol.Request.newBuilder();

@@ -54,8 +54,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.*;
+import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -102,6 +104,8 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		apkPath = intent.getStringExtra("apkPath");
 	/*    getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
 	    getActionBar().hide();*/
+		
+		
 
 		super.onCreate(savedInstanceState);
 
@@ -137,6 +141,22 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		
 	//	ScrollView scv= new ScrollView(this);
 		//scv.addView(vsv);
+		/*LinearLayout parent = new LinearLayout(getApplicationContext());
+		 
+		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+			     LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+		layoutParams.setMargins(-1000, -1000, -1000,-1000);
+		parent.setOrientation(LinearLayout.HORIZONTAL);
+		
+		parent.addView(vsv);*/
+		
+	
+		//vsv.animate().translationYBy(-125).setDuration(0);
+		
+
+	
+		//vsv.getLayoutParams().
+		
 		setContentView(vsv);
 		
 

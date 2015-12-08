@@ -82,7 +82,10 @@ public class OvalLoginActivity extends SvmpActivity
 	public static final int STATUS_REGISTERED = 1; // UNAPPROVED
 	public static final int STATUS_APPROVED = 2;
 	public static final int STATUS_LOGGEDIN = 3;
+	public static final int STATUS_APPSREFRESHED=4;
 
+	
+	ConnectionInfo connectionInfo;
 	private int sendRequestCode;
 
 	public ProgressDialog pDialog;
@@ -477,7 +480,7 @@ public class OvalLoginActivity extends SvmpActivity
 		String status = loginResultVo.getApproved();
 
 		if (isSignedIn) {
-			ConnectionInfo connectionInfo;
+			
 			if (status.equalsIgnoreCase("true")) {
 				connectionInfo = new ConnectionInfo(1, "New Connection", email, "oval.co.in", 3000, 1, 1, "", 0,
 						OvalLoginActivity.STATUS_LOGGEDIN);

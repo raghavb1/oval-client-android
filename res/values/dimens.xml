@@ -13,8 +13,9 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-  -->
+-->
 <resources>
+
     <dimen name="textSize_large">20dp</dimen>
     <dimen name="textSize_xlarge">24dp</dimen>
     <dimen name="textSize_medium">18dp</dimen>
@@ -22,4 +23,11 @@
     <dimen name="padding_normal">5dp</dimen>
     <dimen name="padding_large">10dp</dimen>
     <dimen name="appList_gridView_columnSize">65dp</dimen>
+
+    <!-- For Navigation Drawer -->
+
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="nav_drawer_width">260dp</dimen>
+
 </resources>

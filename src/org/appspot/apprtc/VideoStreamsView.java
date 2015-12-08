@@ -33,6 +33,7 @@ import android.graphics.Rect;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
+import android.widget.LinearLayout.LayoutParams;
 
 import org.mitre.svmp.performance.PerformanceAdapter;
 import org.webrtc.VideoRenderer.I420Frame;
@@ -82,6 +83,8 @@ public class VideoStreamsView
     setEGLContextClientVersion(2);
     setRenderer(this);
     setRenderMode(RENDERMODE_WHEN_DIRTY);
+    
+    
 
     // used for performance instrumentation
     this.spi = spi;
