@@ -161,6 +161,7 @@ public class PCObserver implements PeerConnection.Observer {
 
     @Override
     public void onIceConnectionChange(PeerConnection.IceConnectionState newState) {
+     activity.logAndToast("new ice state: "+newState);
     }
 
     @Override
