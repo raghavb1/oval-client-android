@@ -56,6 +56,8 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.*;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import org.json.JSONObject;
@@ -97,13 +99,16 @@ public class AppRTCActivity extends Activity implements StateObserver, MessageHa
 	protected ImageView appLoadingImgVw;
 	protected TextView preparingTextView;
 	
+	LinearLayout ll;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_apprtc);
 		getWindow().getDecorView().setBackgroundColor(Color.WHITE);
-
+		
+		
+		 ll= (LinearLayout)findViewById(R.id.vsvLinear);
 		preparingTextView = (TextView) findViewById(R.id.preparingTextView);
 		appLoadingImgVw = (ImageView) findViewById(R.id.appLoadingImgVw);
 
@@ -256,6 +261,8 @@ public class AppRTCActivity extends Activity implements StateObserver, MessageHa
 			}
 		});
 	}
+	
+	
 
 	// called from PCObserver, SDPObserver, RotationHandler, and TouchHandler
 	public void sendMessage(Request msg) {

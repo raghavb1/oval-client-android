@@ -6,8 +6,8 @@
 
     <ImageView
         android:id="@+id/appIconImageView"
-        android:layout_width="65dp"
-        android:layout_height="65dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_centerVertical="true"
         android:src="@drawable/svmp_app_icon" />
 
@@ -26,6 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Dropbox" 
+            android:singleLine="false"
             android:textSize="14sp"/>
 
         <TextView
@@ -33,6 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Productivity" 
+            android:singleLine="false"
             android:textSize="12sp"/>
     </LinearLayout>
     

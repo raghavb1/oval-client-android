@@ -78,16 +78,7 @@ public class TouchHandler implements Constants {
 
         // increment the touch update count for performance measurement
         spi.incrementTouchUpdates();
-        activity.getVSV().onPause();
-        Handler handler = new Handler(); 
-        handler.postDelayed(new Runnable() 
-        { 
-          @Override 
-          public void run() { 
-             
-                activity.getVSV().onResume();
-          } 
-        }, 2000 ); 
+      
 
         // Create Protobuf message builders
         SVMPProtocol.Request.Builder msg = SVMPProtocol.Request.newBuilder();

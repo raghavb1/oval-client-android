@@ -45,21 +45,30 @@
 
 package org.mitre.svmp.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.gesture.GestureOverlayView;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Paint.Style;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.*;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.appspot.apprtc.VideoStreamsView;
 import org.json.JSONException;
@@ -74,6 +83,8 @@ import org.mitre.svmp.protocol.SVMPProtocol.Response;
 import org.mitre.svmp.protocol.SVMPProtocol.Request.RequestType;
 import org.webrtc.*;
 import com.citicrowd.oval.R;
+import com.google.android.gms.drive.internal.RemoveEventListenerRequest;
+
 import java.util.TimeZone;
 
 /**
@@ -102,10 +113,10 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		final Intent intent = getIntent();
 		pkgName = intent.getStringExtra("pkgName");
 		apkPath = intent.getStringExtra("apkPath");
-	/*    getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-	    getActionBar().hide();*/
-		
-		
+		/*
+		 * getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+		 * getActionBar().hide();
+		 */
 
 		super.onCreate(savedInstanceState);
 
@@ -117,6 +128,31 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 	 * @Override public void stopProgressDialog() { // TODO Auto-generated
 	 * method stub //not needed }
 	 */
+	class DrawingView extends SurfaceView {
+
+		private final SurfaceHolder surfaceHolder;
+		private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+		public DrawingView(Context context) {
+			super(context);
+			surfaceHolder = getHolder();
+			paint.setColor(Color.RED);
+			paint.setStyle(Style.FILL);
+		}
+
+		@Override
+		public boolean onTouchEvent(MotionEvent event) {
+			if (event.getAction() == MotionEvent.ACTION_DOWN) {
+				if (surfaceHolder.getSurface().isValid()) {
+					Canvas canvas = surfaceHolder.lockCanvas();
+					canvas.drawColor(Color.BLACK);
+					canvas.drawCircle(event.getX(), event.getY(), 50, paint);
+					surfaceHolder.unlockCanvasAndPost(canvas);
+				}
+			}
+			return false;
+		}
+	}
 
 	@Override
 	protected void connectToRoom() {
@@ -127,38 +163,90 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		// Logging.Severity.LS_SENSITIVE);
 
 		Point deviceDisplaySize = new Point();
-		//displaySize.set(720, 1280);
+		// displaySize.set(720, 1280);
 		getWindowManager().getDefaultDisplay().getSize(deviceDisplaySize);
-		
-		Point displaySize= new Point();
-		displaySize.set(deviceDisplaySize.x, deviceDisplaySize.y * (16/9));
-		
-	//	displaySize.set(720, 1280);
-		
+
+		Point displaySize = new Point();
+		displaySize.set(deviceDisplaySize.x, deviceDisplaySize.y * (16 / 9));
+
+		// displaySize.set(720, 1280);
+
 		vsv = new VideoStreamsView(this, displaySize, performanceAdapter);
 		vsv.setBackgroundColor(Color.WHITE); // start this VideoStreamsView
 												// with a color of dark gray
-		
-	//	ScrollView scv= new ScrollView(this);
-		//scv.addView(vsv);
-		/*LinearLayout parent = new LinearLayout(getApplicationContext());
-		 
-		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-			     LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-		layoutParams.setMargins(-1000, -1000, -1000,-1000);
-		parent.setOrientation(LinearLayout.HORIZONTAL);
-		
-		parent.addView(vsv);*/
-		
-	
-		//vsv.animate().translationYBy(-125).setDuration(0);
-		
 
-	
-		//vsv.getLayoutParams().
-		
+		// ScrollView scv= new ScrollView(this);
+		// scv.addView(vsv);
+		/*
+		 * LinearLayout parent = new LinearLayout(getApplicationContext());
+		 * 
+		 * LinearLayout.LayoutParams layoutParams = new
+		 * LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT,
+		 * LinearLayout.LayoutParams.MATCH_PARENT);
+		 * layoutParams.setMargins(-1000, -1000, -1000,-1000);
+		 * parent.setOrientation(LinearLayout.HORIZONTAL);
+		 * 
+		 * parent.addView(vsv);
+		 */
+
+		// vsv.animate().translationYBy(-125).setDuration(0);
+
+		// vsv.getLayoutParams().
+
+		/*
+		 * LinearLayout LL = new LinearLayout(this);
+		 * LL.setBackgroundColor(Color.CYAN);
+		 * LL.setOrientation(LinearLayout.VERTICAL); LL.addView(vsv);
+		 * 
+		 * LayoutParams LLParams = new LayoutParams(LayoutParams.MATCH_PARENT,
+		 * LayoutParams.MATCH_PARENT);
+		 * 
+		 * LL.setWeightSum(6f); LL.setLayoutParams(LLParams);
+		 * 
+		 * ImageView ladder = new ImageView(this);
+		 * ladder.setImageResource(R.drawable.ic_launcher);
+		 * 
+		 * FrameLayout.LayoutParams ladderParams = new
+		 * FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,
+		 * FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM);
+		 * ladder.setLayoutParams(ladderParams);
+		 * 
+		 * FrameLayout ladderFL = new FrameLayout(this);
+		 * LinearLayout.LayoutParams ladderFLParams = new
+		 * LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 0);
+		 * ladderFLParams.weight = 5f; ladderFL.setLayoutParams(ladderFLParams);
+		 * ladderFL.setBackgroundColor(Color.GREEN); View dummyView = new
+		 * View(this);
+		 * 
+		 * LinearLayout.LayoutParams dummyParams = new
+		 * LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0);
+		 * dummyParams.weight = 1f; dummyView.setLayoutParams(dummyParams);
+		 * dummyView.setBackgroundColor(Color.RED);
+		 * 
+		 * ladderFL.addView(ladder); LL.addView(ladderFL);
+		 * LL.addView(dummyView); RelativeLayout rl = new RelativeLayout(this);
+		 * 
+		 * LayoutParams LLParams2 = new LayoutParams(LayoutParams.MATCH_PARENT,
+		 * LayoutParams.MATCH_PARENT); rl.setLayoutParams(LLParams2);
+		 * rl.addView(LL);
+		 */
+
+		// EditText editBox = new EditText(getApplicationContext());
+
+		// editBox.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+		// LayoutParams.WRAP_CONTENT));
+
+		// RelativeLayout ll= (RelativeLayout)findViewById(R.id.vsvLinear);
+
+		createTopPanel();
+
 		setContentView(vsv);
-		
+
+		addContentView(ll,
+				new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 50 * deviceDisplaySize.y / 1280));
+
+	/*	addContentView(new DrawingView(this),
+				new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));*/
 
 		touchHandler = new TouchHandler(this, displaySize, performanceAdapter);
 		rotationHandler = new RotationHandler(this);
@@ -177,6 +265,33 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		sdpMediaConstraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"));
 
 		super.connectToRoom();
+	}
+
+	private void createTopPanel() {
+		// TODO Auto-generated method stub
+
+		ll.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+
+		ImageView stopStreamingBtn = (ImageView) findViewById(R.id.stopStreamingBtn);
+		stopStreamingBtn.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+
+				disconnectAndExit();
+			}
+		});
+
+		((ViewGroup) ll.getParent()).removeView(ll);
+
 	}
 
 	@Override
@@ -245,7 +360,7 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		sendMessage(request.build());
 
 		touchHandler.sendScreenInfoMessage();
-		//rotationHandler.initRotationUpdates();
+		// rotationHandler.initRotationUpdates();
 
 		// send the initial configuration to the VM
 		Configuration config = getResources().getConfiguration();
@@ -281,53 +396,49 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 
 		rBuilder.setApps(aBuilder);
 		sendMessage(rBuilder.build());
-		
-		
+
 	}
 
 	private void sendAppsMessageToOvalAppSrvc() {
-		/*AppsRequest.Builder aBuilder = AppsRequest.newBuilder();
+		/*
+		 * AppsRequest.Builder aBuilder = AppsRequest.newBuilder();
+		 * 
+		 * aBuilder.setType(AppsRequest.AppsRequestType.LAUNCH); // if we've
+		 * been given a package name, start that app if (pkgName != null)
+		 * aBuilder.setPkgName(pkgName); Request.Builder rBuilder =
+		 * Request.newBuilder(); rBuilder.setType(Request.RequestType.APPS);
+		 * rBuilder.setApps(aBuilder); SVMPProtocol.Intent.Builder intent =
+		 * SVMPProtocol.Intent.newBuilder();
+		 * intent.setAction(IntentAction.ACTION_VIEW); intent.setData(apkPath);
+		 * rBuilder.setIntent(intent); sendMessage(rBuilder.build());
+		 */
 
-		aBuilder.setType(AppsRequest.AppsRequestType.LAUNCH);
-		// if we've been given a package name, start that app
-		if (pkgName != null)
-			aBuilder.setPkgName(pkgName);
-		Request.Builder rBuilder = Request.newBuilder();
-		rBuilder.setType(Request.RequestType.APPS);
-		rBuilder.setApps(aBuilder);
-		SVMPProtocol.Intent.Builder intent = SVMPProtocol.Intent.newBuilder();
-		intent.setAction(IntentAction.ACTION_VIEW);
-		intent.setData(apkPath);
-		rBuilder.setIntent(intent);
-		sendMessage(rBuilder.build());*/
-		
 		SVMPProtocol.Request.Builder msg = SVMPProtocol.Request.newBuilder();
-		SVMPProtocol.Intent.Builder intentProtoBuffer = SVMPProtocol.Intent.newBuilder();			
+		SVMPProtocol.Intent.Builder intentProtoBuffer = SVMPProtocol.Intent.newBuilder();
 		intentProtoBuffer.setAction(IntentAction.ACTION_VIEW);
 		intentProtoBuffer.setData(apkPath);
-			
-		//Set the Request message params and send it off.
+
+		// Set the Request message params and send it off.
 		msg.setType(RequestType.INTENT);
 		msg.setIntent(intentProtoBuffer.build());
 
-//		RemoteServerClient.sendMessage(msg.build());
-		
-//<<<<<<< HEAD
+		// RemoteServerClient.sendMessage(msg.build());
+
+		// <<<<<<< HEAD
 		sendMessage(msg.build());
-		
-		
-		Handler handler = new Handler(); 
-		handler.postDelayed(new Runnable() 
-		{ 
-		  @Override 
-		  public void run() { 
-		   
-			  sendAppsMessage();
-			/*	PeerConnection pc = pcObserver.getPC();
-				if (pc != null)
-					pc.createOffer(sdpObserver, sdpMediaConstraints);*/
-		  } 
-		}, 30000 ); 
+
+		Handler handler = new Handler();
+		handler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+
+				sendAppsMessage();
+				/*
+				 * PeerConnection pc = pcObserver.getPC(); if (pc != null)
+				 * pc.createOffer(sdpObserver, sdpMediaConstraints);
+				 */
+			}
+		}, 30000);
 	}
 
 	// MessageHandler interface method
@@ -346,6 +457,9 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 			handleScreenInfo(data);
 			break;
 		case WEBRTC:
+
+			makePanelVisible();
+
 			try {
 				JSONObject json = new JSONObject(data.getWebrtcMsg().getJson());
 				Log.d(TAG, "Received WebRTC message from peer:\n" + json.toString(4));
@@ -385,6 +499,16 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		return true;
 	}
 
+	private void makePanelVisible() {
+		// TODO Auto-generated method stub
+		AppRTCVideoActivity.this.runOnUiThread(new Runnable() {
+			public void run() {
+				Log.d("UI thread", "I am the UI thread");
+				ll.setVisibility(View.VISIBLE);
+			}
+		});
+	}
+
 	@Override
 	protected void onDisconnectAndExit() {
 		if (rotationHandler != null)
@@ -402,6 +526,17 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+
+		Vibrator vb = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+		vb.vibrate(50);
+		/*
+		 * vsv.onPause(); Handler handler = new Handler();
+		 * handler.postDelayed(new Runnable() {
+		 * 
+		 * @Override public void run() {
+		 * 
+		 * vsv.onResume(); } }, 2000);
+		 */
 		return touchHandler.onTouchEvent(event);
 	}
 

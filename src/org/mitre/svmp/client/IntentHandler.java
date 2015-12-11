@@ -65,8 +65,8 @@ public class IntentHandler {
 
 				
 				
-				/*InputMethodManager imm = (InputMethodManager)   context.getSystemService(context.INPUT_METHOD_SERVICE);
-				imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);*/
+				InputMethodManager imm = (InputMethodManager)   context.getSystemService(context.INPUT_METHOD_SERVICE);
+				imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 				break;
 
 			case "true":

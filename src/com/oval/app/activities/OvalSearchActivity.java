@@ -79,6 +79,8 @@ public class OvalSearchActivity extends SvmpActivity {
 	Boolean isSearch;
 	private SearchBox search;
 	
+	public static final String TAG="OvalSearchActivity";
+	
 	
 	
 
@@ -281,7 +283,7 @@ public class OvalSearchActivity extends SvmpActivity {
 			String jsonStr = httpServiceHandler.makeSecureServiceCall(OvalLoginActivity.SEARCH_URL,
 					HTTPServiceHandler.GET, nameValuePair);
 
-			Log.d("Response: ", "> " + jsonStr);
+			Log.d(TAG, "Search Successful");
 			return jsonStr;
 
 		}
@@ -307,14 +309,19 @@ public class OvalSearchActivity extends SvmpActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == 1234 && resultCode == RESULT_OK) {
 			ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-		//	search.populateEditText(matches.get(0));
-			search.setLogoText(matches.get(0));
+			search.populateEditText(matches.get(0));
+			//search.setLogoText(matches.get(0));
 			
 			if(search.isSearchOpen())
 			{
-				search.toggleSearch();
+				
+				
+				search.closeSearch();
 			}
 			
+			InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+			inputMethodManager.hideSoftInputFromWindow(search.getWindowToken(),
+					0);
 			
 			/*if (search.isFocused()) {
 				search.clearFocus();

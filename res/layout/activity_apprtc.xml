@@ -17,8 +17,8 @@
         android:layout_height="150dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/oval_icon"
-        android:layout_marginTop="30dp" />
+        android:layout_marginTop="30dp"
+        android:src="@drawable/oval" />
 
     <TextView
         android:id="@+id/preparingTextView"
@@ -47,5 +47,59 @@
         android:layout_marginTop="45dp"
         android:src="@drawable/svmp_app_icon"
         android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/vsvLinear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#000000"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:weightSum=".9" >
+
+        <ProgressBar
+            android:id="@+id/vsvProgrssBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight=".3"
+            android:visibility="visible" />
+
+       <!--  <ToggleButton
+            android:id="@+id/qualityTggleBtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight=".3"
+            android:textOff="LQ"
+            android:textOn="HQ" /> -->
+
+        <!--
+             <ToggleButton
+            android:id="@+id/toggleButton1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+          
+            android:background="@drawable/toggle"
+            android:checked="false"
+            android:text=""
+            android:textOff=""
+            android:textOn="" />
+        -->
+       
+
+        <Switch
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight=".3"
+            
+            android:textOn="HQ"
+            android:textOff="LQ" />
+
+        <ImageView
+            android:id="@+id/stopStreamingBtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight=".3"
+            android:src="@drawable/ic_dialog_close_normal_holo" />
+    </LinearLayout>
 
 </RelativeLayout>
