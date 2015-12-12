@@ -172,6 +172,7 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		// displaySize.set(720, 1280);
 
 		vsv = new VideoStreamsView(this, displaySize, performanceAdapter);
+		vsv.setPreserveEGLContextOnPause(true);
 		vsv.setBackgroundColor(Color.WHITE); // start this VideoStreamsView
 												// with a color of dark gray
 
