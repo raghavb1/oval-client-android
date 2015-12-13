@@ -79,6 +79,19 @@ public class PCObserver implements PeerConnection.Observer {
         else
             pc.addIceCandidate(candidate);
     }
+    public void changeResolution(String type){
+    	final String _type=type;
+    	if(pc!=null){
+    		activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    JSONObject json = new JSONObject();
+                    AppRTCHelper.jsonPut(json, "type", "changeResolution");
+                    AppRTCHelper.jsonPut(json, "value", _type);
+                    activity.sendMessage(AppRTCHelper.makeWebRTCRequest(json));
+                }
+            });
+    	}
+    }
 
     // Just for fun (and to regression-test bug 2302) make sure that DataChannels
     // can be created, queried, and disposed.

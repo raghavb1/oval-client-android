@@ -53,11 +53,11 @@ import org.webrtc.SessionDescription;
 
 // Implementation detail: handle offer creation/signaling and answer setting,
 // as well as adding remote ICE candidates once the answer SDP is set.
-public class SDPObserver implements SdpObserver {
+public class SDPAObserver implements SdpObserver {
     protected static final String TAG = SDPObserver.class.getName();
     AppRTCVideoActivity activity;
 
-    public SDPObserver(AppRTCVideoActivity activity) {
+    public SDPAObserver(AppRTCVideoActivity activity) {
         this.activity = activity;
     }
 
@@ -87,8 +87,6 @@ public class SDPObserver implements SdpObserver {
     @Override public void onSetSuccess() {
         activity.runOnUiThread(new Runnable() {
             public void run() {
-                PCObserver pcObserver = activity.getPCObserver();
-                sendLocalDescription(pcObserver.getPC());
             }
         });
     }

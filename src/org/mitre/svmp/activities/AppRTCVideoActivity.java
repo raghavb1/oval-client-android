@@ -96,6 +96,7 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 
 	private MediaConstraints sdpMediaConstraints;
 	private SDPObserver sdpObserver;
+	private SDPAObserver sdpaObserver;
 	private VideoStreamsView vsv;
 	private PCObserver pcObserver;
 	private TouchHandler touchHandler;
@@ -259,6 +260,7 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 
 		// Create observers.
 		sdpObserver = new SDPObserver(this);
+		sdpaObserver = new SDPAObserver(this);
 		pcObserver = new PCObserver(this);
 
 		sdpMediaConstraints = new MediaConstraints();
@@ -378,7 +380,7 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 
 		PeerConnection pc = pcObserver.getPC();
 		if (pc != null)
-			pc.createOffer(sdpObserver, sdpMediaConstraints);
+			pcObserver.changeResolution("AUTO");
 	}
 
 	// sends "APPS" request to VM; if pkgName is not null, start that app,
@@ -478,11 +480,16 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 					IceCandidate candidate = new IceCandidate((String) json.get("id"), json.getInt("label"),
 							(String) json.get("candidate"));
 					getPCObserver().addIceCandidate(candidate);
-				} else if (type.equals("answer") || type.equals("offer")) {
+				} else if (type.equals("offer")) {
 					SessionDescription sdp = new SessionDescription(SessionDescription.Type.fromCanonicalForm(type),
 							AppRTCHelper.preferISAC((String) json.get("sdp")));
-					getPCObserver().getPC().setRemoteDescription(sdpObserver, sdp);
-				} else if (type.equals("bye")) {
+					getPCObserver().getPC().setRemoteDescription(sdpaObserver, sdp);
+					getPCObserver().getPC().createAnswer(sdpObserver, sdpMediaConstraints);
+				} else if (type.equals("answer")) {
+					SessionDescription sdp = new SessionDescription(SessionDescription.Type.fromCanonicalForm(type),
+							AppRTCHelper.preferISAC((String) json.get("sdp")));
+					getPCObserver().getPC().setRemoteDescription(sdpaObserver, sdp);
+				}else if (type.equals("bye")) {
 					logAndToast(R.string.appRTC_toast_clientHandler_finish);
 					disconnectAndExit();
 				} else {
