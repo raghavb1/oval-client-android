@@ -161,6 +161,17 @@ public class PCObserver implements PeerConnection.Observer {
 
     @Override
     public void onIceConnectionChange(PeerConnection.IceConnectionState newState) {
+    	if(newState.equals(PeerConnection.IceConnectionState.CONNECTED) || newState.equals(PeerConnection.IceConnectionState.COMPLETED)){
+    		 new Thread(new Runnable() {
+    	            public void run() {
+    	                activity.runOnUiThread(new Runnable() {
+    	                    public void run() {
+    	                        activity.stopProgressDialog(); // stop the Progress Dialog
+    	                        activity.getVSV().setBackgroundColor(Color.TRANSPARENT); // video should be started now, remove the background color
+    	                    }});
+    	            }
+    	        }).start();
+    	}
     // activity.logAndToast("new ice state: "+newState);
     }
 
@@ -179,12 +190,6 @@ public class PCObserver implements PeerConnection.Observer {
                     stream.videoTracks.get(0).addRenderer(new VideoRenderer(
                             new VideoCallbacks(activity.getVSV(), VideoStreamsView.Endpoint.REMOTE)));
                 }
-
-                activity.runOnUiThread(new Runnable() {
-                    public void run() {
-                        activity.stopProgressDialog(); // stop the Progress Dialog
-                        activity.getVSV().setBackgroundColor(Color.TRANSPARENT); // video should be started now, remove the background color
-                    }});
             }
         }).start();
     }
