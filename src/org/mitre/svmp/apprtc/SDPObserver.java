@@ -69,6 +69,7 @@ public class SDPObserver implements SdpObserver {
                 activity.logAndToast(R.string.appRTC_toast_sdpObserver_sendOffer);
                 SessionDescription sdp = new SessionDescription(
                         origSdp.type, AppRTCHelper.preferISAC(origSdp.description));
+
                 activity.getPCObserver().getPC().setLocalDescription(parent, sdp);
             }
         }).start();
@@ -78,6 +79,7 @@ public class SDPObserver implements SdpObserver {
     // other participant.
     private void sendLocalDescription(PeerConnection pc) {
         SessionDescription sdp = pc.getLocalDescription();
+        //logAndToast("Sending " + sdp.type);
         JSONObject json = new JSONObject();
         AppRTCHelper.jsonPut(json, "type", sdp.type.canonicalForm());
         AppRTCHelper.jsonPut(json, "sdp", sdp.description);
@@ -88,7 +90,30 @@ public class SDPObserver implements SdpObserver {
         activity.runOnUiThread(new Runnable() {
             public void run() {
                 PCObserver pcObserver = activity.getPCObserver();
-                sendLocalDescription(pcObserver.getPC());
+                //if (activity.isInitiator()) {
+                    if (pcObserver.getPC().getRemoteDescription() != null) {
+                        // We've set our local offer and received & set the remote
+                        // answer, so drain candidates.
+                        pcObserver.drainRemoteCandidates();
+                    } else {
+                        // We've just set our local description so time to send it.
+                        sendLocalDescription(pcObserver.getPC());
+                    }
+                //}
+/* we are always the initiator, no need for this condition
+                else {
+                    if (pcObserver.getPC().getLocalDescription() == null) {
+                        // We just set the remote offer, time to create our answer.
+                        //logAndToast("Creating answer");
+                        pcObserver.getPC().createAnswer(SDPObserver.this, activity.getSdpMediaConstraints());
+                    } else {
+                        // Answer now set as local description; send it and drain
+                        // candidates.
+                        sendLocalDescription(pcObserver.getPC());
+                        pcObserver.drainRemoteCandidates();
+                    }
+                }
+*/
             }
         });
     }
