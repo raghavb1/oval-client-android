@@ -97,7 +97,7 @@ public class VideoStreamsView
 
 
   /** Queue |frame| to be uploaded. */
-  public void synchronized queueFrame(final Endpoint stream, I420Frame frame) {
+  public synchronized void queueFrame(final Endpoint stream, I420Frame frame) {
     // Paying for the copy of the YUV data here allows CSC and painting time
     // to get spent on the render thread instead of the UI thread.
     abortUnless(framePool.validateDimensions(frame), "Frame too large!");
@@ -110,14 +110,7 @@ public class VideoStreamsView
       I420Frame frameToDrop = framesToRender.put(stream, frameCopy);
 
       if (needToScheduleRender) {
-        if (frameToDrop != null) {
-            framePool.returnFrame(frameToDrop);
-        }
-        queueEvent(new Runnable() {
-          public void run() {
-            updateFrames();
-          }
-        });
+        updateFrames();
     }
     }
 
