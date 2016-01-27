@@ -97,7 +97,7 @@ public class VideoStreamsView
 
 
   /** Queue |frame| to be uploaded. */
-  public void queueFrame(final Endpoint stream, I420Frame frame) {
+  public void synchronized queueFrame(final Endpoint stream, I420Frame frame) {
     // Paying for the copy of the YUV data here allows CSC and painting time
     // to get spent on the render thread instead of the UI thread.
     abortUnless(framePool.validateDimensions(frame), "Frame too large!");
@@ -108,27 +108,29 @@ public class VideoStreamsView
       // already a render scheduled, which is true iff framesToRender is empty.
       needToScheduleRender = framesToRender.isEmpty();
       I420Frame frameToDrop = framesToRender.put(stream, frameCopy);
-      if (frameToDrop != null) {
-        framePool.returnFrame(frameToDrop);
-      }
-    }
-    if (needToScheduleRender) {
-      queueEvent(new Runnable() {
+
+      if (needToScheduleRender) {
+        if (frameToDrop != null) {
+            framePool.returnFrame(frameToDrop);
+        }
+        queueEvent(new Runnable() {
           public void run() {
             updateFrames();
           }
         });
     }
+    }
+
   }
 
   // Upload the planes from |framesToRender| to the textures owned by this View.
-  private void updateFrames() {
+  private synchronized void updateFrames() {
 //    I420Frame localFrame = null;
     I420Frame remoteFrame = null;
     synchronized (framesToRender) {
 //      localFrame = framesToRender.remove(Endpoint.LOCAL);
       remoteFrame = framesToRender.remove(Endpoint.REMOTE);
-    }
+
   /*  if (localFrame != null) {
       texImage2D(localFrame, yuvTextures[0]);
       framePool.returnFrame(localFrame);
@@ -140,6 +142,7 @@ public class VideoStreamsView
     abortUnless(/*localFrame != null || */remoteFrame != null,
                 "Nothing to render!");
     requestRender();
+    }
   }
 
   /** Inform this View of the dimensions of frames coming from |stream|. */
