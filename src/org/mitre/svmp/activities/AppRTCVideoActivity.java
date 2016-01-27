@@ -45,6 +45,7 @@
 
 package org.mitre.svmp.activities;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -57,16 +58,23 @@ import android.graphics.Paint.Style;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.support.v4.content.IntentCompat;
+import android.support.v4.view.GestureDetectorCompat;
 import android.util.Log;
 import android.view.*;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -84,7 +92,9 @@ import org.mitre.svmp.protocol.SVMPProtocol.Request.RequestType;
 import org.webrtc.*;
 import com.citicrowd.oval.R;
 import com.google.android.gms.drive.internal.RemoveEventListenerRequest;
+import com.oval.app.activities.OvalDrawerActivity;
 
+import java.util.HashMap;
 import java.util.TimeZone;
 
 /**
@@ -96,6 +106,7 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 
 	private MediaConstraints sdpMediaConstraints;
 	private SDPObserver sdpObserver;
+	// private SDPAObserver sdpaObserver;
 	private VideoStreamsView vsv;
 	private PCObserver pcObserver;
 	private TouchHandler touchHandler;
@@ -106,6 +117,9 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 	private ConfigHandler configHandler;
 	private String apkPath;
 
+	private GestureDetectorCompat mDetector;
+	boolean scrollClicked = false;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
@@ -113,12 +127,47 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		final Intent intent = getIntent();
 		pkgName = intent.getStringExtra("pkgName");
 		apkPath = intent.getStringExtra("apkPath");
+
+		mDetector = new GestureDetectorCompat(this, new CustomScrollGesture());
 		/*
 		 * getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
 		 * getActionBar().hide();
 		 */
 
 		super.onCreate(savedInstanceState);
+
+		qualitySpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				// TODO Auto-generated method stub
+
+				HashMap<String, String> map = new HashMap<>();
+				if (position == 0) {
+					map.put("height", "");
+					map.put("width", "");
+
+				} else if (position == 1) {
+					map.put("height", "640");
+					map.put("width", "360");
+				} else if (position == 2) {
+
+					map.put("height", "1280");
+					map.put("width", "720");
+				}
+				map.put("type", "resolution_change");
+
+				JSONObject jObj = new JSONObject(map);
+				AppRTCHelper.makeWebRTCRequest(jObj);
+
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				// TODO Auto-generated method stub
+
+			}
+		});
 
 	}
 
@@ -176,78 +225,17 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		vsv.setBackgroundColor(Color.WHITE); // start this VideoStreamsView
 												// with a color of dark gray
 
-		// ScrollView scv= new ScrollView(this);
-		// scv.addView(vsv);
-		/*
-		 * LinearLayout parent = new LinearLayout(getApplicationContext());
-		 * 
-		 * LinearLayout.LayoutParams layoutParams = new
-		 * LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT,
-		 * LinearLayout.LayoutParams.MATCH_PARENT);
-		 * layoutParams.setMargins(-1000, -1000, -1000,-1000);
-		 * parent.setOrientation(LinearLayout.HORIZONTAL);
-		 * 
-		 * parent.addView(vsv);
-		 */
-
-		// vsv.animate().translationYBy(-125).setDuration(0);
-
-		// vsv.getLayoutParams().
-
-		/*
-		 * LinearLayout LL = new LinearLayout(this);
-		 * LL.setBackgroundColor(Color.CYAN);
-		 * LL.setOrientation(LinearLayout.VERTICAL); LL.addView(vsv);
-		 * 
-		 * LayoutParams LLParams = new LayoutParams(LayoutParams.MATCH_PARENT,
-		 * LayoutParams.MATCH_PARENT);
-		 * 
-		 * LL.setWeightSum(6f); LL.setLayoutParams(LLParams);
-		 * 
-		 * ImageView ladder = new ImageView(this);
-		 * ladder.setImageResource(R.drawable.ic_launcher);
-		 * 
-		 * FrameLayout.LayoutParams ladderParams = new
-		 * FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,
-		 * FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM);
-		 * ladder.setLayoutParams(ladderParams);
-		 * 
-		 * FrameLayout ladderFL = new FrameLayout(this);
-		 * LinearLayout.LayoutParams ladderFLParams = new
-		 * LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 0);
-		 * ladderFLParams.weight = 5f; ladderFL.setLayoutParams(ladderFLParams);
-		 * ladderFL.setBackgroundColor(Color.GREEN); View dummyView = new
-		 * View(this);
-		 * 
-		 * LinearLayout.LayoutParams dummyParams = new
-		 * LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0);
-		 * dummyParams.weight = 1f; dummyView.setLayoutParams(dummyParams);
-		 * dummyView.setBackgroundColor(Color.RED);
-		 * 
-		 * ladderFL.addView(ladder); LL.addView(ladderFL);
-		 * LL.addView(dummyView); RelativeLayout rl = new RelativeLayout(this);
-		 * 
-		 * LayoutParams LLParams2 = new LayoutParams(LayoutParams.MATCH_PARENT,
-		 * LayoutParams.MATCH_PARENT); rl.setLayoutParams(LLParams2);
-		 * rl.addView(LL);
-		 */
-
-		// EditText editBox = new EditText(getApplicationContext());
-
-		// editBox.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-		// LayoutParams.WRAP_CONTENT));
-
-		// RelativeLayout ll= (RelativeLayout)findViewById(R.id.vsvLinear);
-
 		createTopPanel();
 
 		setContentView(vsv);
 
 		addContentView(ll,
 				new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 50 * deviceDisplaySize.y / 1280));
+		addContentView(scrollBtnsRLayout,
+				new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+				// addContentView(view, params);
 
-	/*	addContentView(new DrawingView(this),
-				new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));*/
+		// vsvProgrssBar.setVisibility(View.INVISIBLE);
 
 		touchHandler = new TouchHandler(this, displaySize, performanceAdapter);
 		rotationHandler = new RotationHandler(this);
@@ -259,6 +247,7 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 
 		// Create observers.
 		sdpObserver = new SDPObserver(this);
+		// sdpaObserver = new SDPAObserver(this);
 		pcObserver = new PCObserver(this);
 
 		sdpMediaConstraints = new MediaConstraints();
@@ -280,7 +269,22 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 			}
 		});
 
+		ImageView homeStreamingBtn = (ImageView) findViewById(R.id.homeStreamingBtn);
+		homeStreamingBtn.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+
+				Intent intent = new Intent(AppRTCVideoActivity.this, OvalDrawerActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | IntentCompat.FLAG_ACTIVITY_CLEAR_TASK);
+				startActivity(intent);
+				disconnectAndExit();
+
+			}
+		});
 		ImageView stopStreamingBtn = (ImageView) findViewById(R.id.stopStreamingBtn);
+
 		stopStreamingBtn.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -290,6 +294,95 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 				disconnectAndExit();
 			}
 		});
+		
+		scrollUpImgVw.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+
+				// TODO Auto-generated method stub
+				if (scrollClicked == false) {
+					scrollClicked=true;
+					Vibrator vb = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+					vb.vibrate(50);
+				//	vsv.onPause();
+					vsvProgrssBar.setVisibility(View.VISIBLE);
+
+					Handler handler = new Handler();
+					handler.postDelayed(new Runnable() {
+
+						@Override
+						public void run() {
+							vsvProgrssBar.setVisibility(View.INVISIBLE);
+						//	vsv.onResume();
+							scrollClicked = false;
+						}
+					}, 2000);
+
+					SVMPProtocol.Request.Builder msg = SVMPProtocol.Request.newBuilder();
+					SVMPProtocol.TouchEvent.Builder eventmsg = SVMPProtocol.TouchEvent.newBuilder();
+
+					eventmsg.setAction(51);
+					msg.setType(RequestType.TOUCHEVENT);
+					msg.addTouch(eventmsg); // TODO: batch touch events
+
+					// Send touch event to VM
+
+					sendMessage(msg.build());
+				}
+
+			
+			}
+		});
+		
+		scrolldownImgVw.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+
+				// TODO Auto-generated method stub
+				if (scrollClicked == false) {
+					scrollClicked=true;
+					
+					Vibrator vb = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+					vb.vibrate(50);
+				//	vsv.onPause();
+					vsvProgrssBar.setVisibility(View.VISIBLE);
+
+					Handler handler = new Handler();
+					handler.postDelayed(new Runnable() {
+
+						@Override
+						public void run() {
+							vsvProgrssBar.setVisibility(View.INVISIBLE);
+							//vsv.onResume();
+							scrollClicked = false;
+						}
+					}, 2000);
+
+					SVMPProtocol.Request.Builder msg = SVMPProtocol.Request.newBuilder();
+					SVMPProtocol.TouchEvent.Builder eventmsg = SVMPProtocol.TouchEvent.newBuilder();
+
+					eventmsg.setAction(50);
+					msg.setType(RequestType.TOUCHEVENT);
+					msg.addTouch(eventmsg); // TODO: batch touch events
+
+					// Send touch event to VM
+
+					sendMessage(msg.build());
+				}
+
+			
+			}
+		});
+
+		
+		
+
+		
+		((ViewGroup) scrollBtnsRLayout.getParent()).removeView(scrollBtnsRLayout);
 
 		((ViewGroup) ll.getParent()).removeView(ll);
 
@@ -378,6 +471,7 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 
 		PeerConnection pc = pcObserver.getPC();
 		if (pc != null)
+			// pcObserver.changeResolution("AUTO");
 			pc.createOffer(sdpObserver, sdpMediaConstraints);
 	}
 
@@ -401,18 +495,6 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 	}
 
 	private void sendAppsMessageToOvalAppSrvc() {
-		/*
-		 * AppsRequest.Builder aBuilder = AppsRequest.newBuilder();
-		 * 
-		 * aBuilder.setType(AppsRequest.AppsRequestType.LAUNCH); // if we've
-		 * been given a package name, start that app if (pkgName != null)
-		 * aBuilder.setPkgName(pkgName); Request.Builder rBuilder =
-		 * Request.newBuilder(); rBuilder.setType(Request.RequestType.APPS);
-		 * rBuilder.setApps(aBuilder); SVMPProtocol.Intent.Builder intent =
-		 * SVMPProtocol.Intent.newBuilder();
-		 * intent.setAction(IntentAction.ACTION_VIEW); intent.setData(apkPath);
-		 * rBuilder.setIntent(intent); sendMessage(rBuilder.build());
-		 */
 
 		SVMPProtocol.Request.Builder msg = SVMPProtocol.Request.newBuilder();
 		SVMPProtocol.Intent.Builder intentProtoBuffer = SVMPProtocol.Intent.newBuilder();
@@ -423,9 +505,6 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		msg.setType(RequestType.INTENT);
 		msg.setIntent(intentProtoBuffer.build());
 
-		// RemoteServerClient.sendMessage(msg.build());
-
-		// <<<<<<< HEAD
 		sendMessage(msg.build());
 
 		Handler handler = new Handler();
@@ -434,10 +513,7 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 			public void run() {
 
 				sendAppsMessage();
-				/*
-				 * PeerConnection pc = pcObserver.getPC(); if (pc != null)
-				 * pc.createOffer(sdpObserver, sdpMediaConstraints);
-				 */
+
 			}
 		}, 30000);
 	}
@@ -479,10 +555,12 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 							(String) json.get("candidate"));
 					getPCObserver().addIceCandidate(candidate);
 				} else if (type.equals("answer") || type.equals("offer")) {
+
 					SessionDescription sdp = new SessionDescription(SessionDescription.Type.fromCanonicalForm(type),
 							AppRTCHelper.preferISAC((String) json.get("sdp")));
 					getPCObserver().getPC().setRemoteDescription(sdpObserver, sdp);
 				} else if (type.equals("bye")) {
+
 					logAndToast(R.string.appRTC_toast_clientHandler_finish);
 					disconnectAndExit();
 				} else {
@@ -506,6 +584,7 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 			public void run() {
 				Log.d("UI thread", "I am the UI thread");
 				ll.setVisibility(View.VISIBLE);
+				scrollBtnsRLayout.setVisibility(View.VISIBLE);
 			}
 		});
 	}
@@ -525,25 +604,106 @@ public class AppRTCVideoActivity extends AppRTCActivity {
 		touchHandler.handleScreenInfoResponse(msg);
 	}
 
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
+	private float mDownX;
+	private float mDownY;
+	private final float SCROLL_THRESHOLD = 10;
+	private boolean isOnClick;
+	// private boolean isVsvPaused = false;
 
+	@Override
+	public boolean onTouchEvent(MotionEvent ev) {
+
+		Log.e(TAG, "inside activity on touch.");
 		Vibrator vb = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-		vb.vibrate(50);
-		/*
-		 * vsv.onPause(); Handler handler = new Handler();
-		 * handler.postDelayed(new Runnable() {
-		 * 
-		 * @Override public void run() {
-		 * 
-		 * vsv.onResume(); } }, 2000);
-		 */
-		return touchHandler.onTouchEvent(event);
+		switch (ev.getAction() & MotionEvent.ACTION_MASK) {
+		case MotionEvent.ACTION_DOWN:
+			mDownX = ev.getX();
+			mDownY = ev.getY();
+			isOnClick = true;
+			break;
+		case MotionEvent.ACTION_CANCEL:
+		case MotionEvent.ACTION_UP:
+
+			if (isOnClick) {
+				Log.i(TAG, "onClick ");
+
+				// pauseVsv();
+				vb.vibrate(50);
+				// return touchHandler.onTouchEvent(ev);
+
+				// TODO onClick code
+			}
+			break;
+		case MotionEvent.ACTION_MOVE:
+			if (isOnClick && (Math.abs(mDownX - ev.getX()) > SCROLL_THRESHOLD
+					|| Math.abs(mDownY - ev.getY()) > SCROLL_THRESHOLD)) {
+				Log.i(TAG, "movement detected");
+				isOnClick = false;
+
+				//vsv.onPause();
+
+			}
+			break;
+		default:
+
+			break;
+		}
+		vsvProgrssBar.setVisibility(View.VISIBLE);
+
+		Handler handler = new Handler();
+		handler.postDelayed(new Runnable() {
+
+			@Override
+			public void run() {
+				vsvProgrssBar.setVisibility(View.INVISIBLE);
+				//vsv.onResume();
+			}
+		}, 1000);
+
+		Log.e(TAG, "on activity touch is finishing");
+
+		return touchHandler.onTouchEvent(ev);
+
+	}
+
+	Handler handler = new Handler();
+
+	private void pauseVsv() {
+		// TODO Auto-generated method stub
+		Log.i(TAG, "VSV Paused");
+		vsv.onPause();
+		// isVsvPaused = true;
+
+		handler.postDelayed(new Runnable() {
+
+			@Override
+			public void run() {
+				// isVsvPaused = false;
+				Log.i(TAG, "VSV Resumed");
+				vsv.onResume();
+			}
+		}, 2000);
+
 	}
 
 	// intercept KeyEvent before it is dispatched to the window
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
 		return keyHandler.tryConsume(event) || super.dispatchKeyEvent(event);
+	}
+
+	class CustomScrollGesture extends GestureDetector.SimpleOnGestureListener {
+		public static final String TAG = "CustomScrollGesture";
+
+		@Override
+		public boolean onSingleTapConfirmed(MotionEvent e) {
+			// TODO Auto-generated method stub
+
+			Log.i(TAG, "Single TAp");
+			Vibrator vb = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+			vb.vibrate(10);
+
+			return super.onSingleTapConfirmed(e);
+		}
 	}
 }
