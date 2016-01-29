@@ -100,13 +100,15 @@ public class VideoStreamsView
   public synchronized void queueFrame(final Endpoint stream, I420Frame frame) {
     // Paying for the copy of the YUV data here allows CSC and painting time
     // to get spent on the render thread instead of the UI thread.
-    abortUnless(framePool.validateDimensions(frame), "Frame too large!");
-    queueEvent(new Runnable() {
-        public void run() {
-            texImage2D(frame, yuvTextures[1]);
-            requestRender();
-        }
-    });
+    // synchronized (frame) {
+        abortUnless(framePool.validateDimensions(frame), "Frame too large!");
+        queueEvent(new Runnable() {
+            public void run() {
+                texImage2D(frame, yuvTextures[1]);
+                requestRender();
+            }
+        });
+    // }
     // final I420Frame frameCopy = framePool.takeFrame(frame).copyFrom(frame);
     // boolean needToScheduleRender;
     // synchronized (framesToRender) {
