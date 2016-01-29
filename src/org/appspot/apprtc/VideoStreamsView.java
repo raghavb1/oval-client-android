@@ -101,18 +101,33 @@ public class VideoStreamsView
     // Paying for the copy of the YUV data here allows CSC and painting time
     // to get spent on the render thread instead of the UI thread.
     abortUnless(framePool.validateDimensions(frame), "Frame too large!");
-    final I420Frame frameCopy = framePool.takeFrame(frame).copyFrom(frame);
-    boolean needToScheduleRender;
-    synchronized (framesToRender) {
-      // A new render needs to be scheduled (via updateFrames()) iff there isn't
-      // already a render scheduled, which is true iff framesToRender is empty.
-      needToScheduleRender = framesToRender.isEmpty();
-      I420Frame frameToDrop = framesToRender.put(stream, frameCopy);
+    queueEvent(new Runnable() {
+        public void run() {
+            texImage2D(frame, yuvTextures[1]);
+            requestRender();
+        }
+    });
+    // final I420Frame frameCopy = framePool.takeFrame(frame).copyFrom(frame);
+    // boolean needToScheduleRender;
+    // synchronized (framesToRender) {
+    //     // A new render needs to be scheduled (via updateFrames()) iff there isn't
+    //     // already a render scheduled, which is true iff framesToRender is empty.
+    //     needToScheduleRender = framesToRender.isEmpty();
 
-      if (needToScheduleRender) {
-        updateFrames();
-    }
-    }
+
+    //     if (needToScheduleRender) {
+    //         I420Frame frameToDrop = framesToRender.put(stream, frameCopy);
+    //         if (frameToDrop != null) {
+    //             framePool.returnFrame(frameToDrop);
+    //         }
+          
+    //         queueEvent(new Runnable() {
+    //             public void run() {
+    //                 updateFrames();
+    //             }
+    //         });
+    //     }
+    // }
 
   }
 
